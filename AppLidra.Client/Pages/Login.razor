@@ -1,0 +1,29 @@
+﻿@page "/login"
+@using AppLidra.Shared.Models
+
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Username</label>
+        <InputText @bind-Value="loginModel.Username" />
+    </div>
+
+    <div>
+        <label>Password</label>
+        <InputText @bind-Value="loginModel.Password" type="password" />
+    </div>
+
+    <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+
+    private async Task HandleLogin()
+    {
+        // call api to login
+        throw new NotImplementedException();
+    }
+}

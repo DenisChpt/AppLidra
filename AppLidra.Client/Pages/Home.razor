@@ -1,0 +1,32 @@
+﻿@page "/"
+@using AppLidra.Shared.Models
+
+<h3>My Projects</h3>
+
+<ul>
+    @foreach (var project in projects)
+    {
+        <li>
+            <a href="@($"/project/{project.Id}")">@project.Name</a>
+        </li>
+    }
+</ul>
+
+<button @onclick="CreateNewProject">Créer un nouveau projet</button>
+
+@code {
+    private List<Project> projects = new List<Project>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // call api to load projects
+        throw new NotImplementedException();
+
+    }
+
+    private async Task CreateNewProject()
+    {
+        // call api to create new project
+        throw new NotImplementedException();
+    }
+}

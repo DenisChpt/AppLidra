@@ -1,0 +1,21 @@
+﻿@page "/project/{projectId:int}"
+@using AppLidra.Shared.Models
+
+<h3>@project?.Name</h3>
+
+<nav>
+    <a href="@($"/project/{project.Id}/add-expense")">Ajouter une dépense</a> |
+    <a href="@($"/project/{project.Id}/expenses")">Liste des dépenses</a> |
+    <a href="@($"/project/{project.Id}/visualize")">Visualiser les dépenses</a>
+</nav>
+
+@code {
+    [Parameter] public int projectId { get; set; }
+    private Project project;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // call api to get project with specific id
+
+    }
+}

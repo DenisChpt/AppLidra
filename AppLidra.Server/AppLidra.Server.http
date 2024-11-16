@@ -1,0 +1,6 @@
+@AppLidra.Server_HostAddress = http://localhost:5031
+
+GET {{AppLidra.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
