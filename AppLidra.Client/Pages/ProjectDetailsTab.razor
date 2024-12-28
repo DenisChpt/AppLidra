@@ -1,0 +1,162 @@
+﻿@using AppLidra.Shared.Models
+@using Blazored.LocalStorage
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+
+@if (Project is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>Project Details</h3>
+    @if (isOwner)
+    {
+        <h4>Settings</h4>
+        <input type="text" @bind="newName" class="border p-2" placeholder="Project Name" disabled="@(isOwner ? null : true)" />
+        <button class="bg-green-500 text-white p-2 mt-2" @onclick="RenameProject">Rename</button>
+        <button class="bg-red-700 text-white p-2 mt-2" @onclick="DeleteProject">Delete Project</button>
+    }
+
+    <h4>Collaborators</h4>
+    @if (isOwner)
+    {
+        <div>
+            <input type="text" @bind="newCollaboratorUserName" class="border p-2" placeholder="Collaborator Username" />
+            <button class="bg-blue-500 text-white p-2 mt-2" @onclick="AddCollaborator">Add Collaborator</button>
+        </div>
+    }
+    <ul>
+        @foreach (var collaborator in Project.Collaborators)
+        {
+            <li>
+                User : @collaborator
+                @if (isOwner)
+                {
+                    <button class="bg-red-500 text-white ml-2" @onclick="() => RemoveCollaborator(collaborator)">Remove</button>
+                }
+            </li>
+        }
+    </ul>
+
+    <button class="bg-red-500 text-white ml-2" @onclick="QuitProject">Quit Project</button>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    [Parameter] public Project Project { get; set; }
+    [Parameter] public EventCallback<Project> OnProjectUpdated { get; set; }
+    [Parameter] public EventCallback OnProjectDeleted { get; set; }
+
+    private string newCollaboratorUserName;
+    private string errorMessage;
+    private bool isOwner;
+    private string newName;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Project is not null)
+        {
+            isOwner = await Http.GetFromJsonAsync<bool>($"https://localhost:44354/api/Project/is-owner/{Project.Id}");
+        }
+    }
+
+    private async Task RenameProject()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/rename", new ProjectRenameModel(Project.Id, newName));
+
+            if (response.IsSuccessStatusCode)
+                ProjectUpdate();
+            else
+                errorMessage = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to add collaborator. Error: {ex.Message}";
+        }
+    }
+
+    private async Task AddCollaborator()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/add-collaborator", new CollaboratorModificationModel(Project.Id, newCollaboratorUserName));
+
+            if(response.IsSuccessStatusCode)
+                ProjectUpdate();
+            else
+                errorMessage = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to add collaborator. Error: {ex.Message}";
+        }
+    }
+
+    private async Task RemoveCollaborator(string collaborator)
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/remove-collaborator", new CollaboratorModificationModel(Project.Id, collaborator));
+
+            if (response.IsSuccessStatusCode)
+                ProjectUpdate();
+            else
+                errorMessage = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to add collaborator. Error: {ex.Message}";
+        }
+    }
+
+    private async Task QuitProject()
+    {
+        try
+        {
+            UserResponse? userName = await Http.GetFromJsonAsync<UserResponse>($"https://localhost:44354/api/User/userName");
+
+            if (userName is not null)
+            {
+                var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/quit-project", new CollaboratorModificationModel(Project.Id, userName.UserName));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    ProjectUpdate();
+                    await OnProjectDeleted.InvokeAsync();
+                }
+                else
+                    errorMessage = await response.Content.ReadAsStringAsync();
+            }
+            else
+                errorMessage = $"Failed to get userName.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to quit project. Error: {ex.Message}";
+        }
+    }
+
+    private async void ProjectUpdate()
+    {
+        Project? tmpProj = await Http.GetFromJsonAsync<Project>($"https://localhost:44354/api/Project/{Project.Id}");
+        if (tmpProj is not null)
+        {
+            Project = tmpProj;
+            await OnProjectUpdated.InvokeAsync(Project);
+        }
+        else
+            errorMessage = "Unexpected Error, project no longer exists, go back to projects list.";
+    }
+
+    private async Task DeleteProject()
+    {
+        await Http.DeleteAsync($"https://localhost:44354/api/Project/{Project.Id}");
+        await OnProjectDeleted.InvokeAsync();
+    }
+}
