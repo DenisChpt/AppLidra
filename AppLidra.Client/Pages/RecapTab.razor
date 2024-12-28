@@ -1,0 +1,64 @@
+﻿@using AppLidra.Shared.Models
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<div>
+    <h4 class="font-bold mb-2">Balance Overview</h4>
+    @if (balance is null)
+    {
+        <p>Loading balance data...</p>
+    }
+    else if (!balance.BalanceParts.Any())
+    {
+        <p>No balance information available for this project.</p>
+    }
+    else
+    {
+        <h5>Details:</h5>
+        <ul>
+            @foreach (var b in balance.BalanceParts)
+            {
+                <li>@b.Name: @b.Amount</li>
+            }
+        </ul>
+        <h5>Graph:</h5>
+        <canvas id="balanceChart" width="300" height="200"></canvas>
+    }
+</div>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    [Parameter] public int ProjectId { get; set; }
+
+    private Balance balance;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Balance? tmpBalance = await Http.GetFromJsonAsync<Balance>($"api/Project/balance/{ProjectId}");
+        if(tmpBalance is not null){
+            balance = tmpBalance;
+            await InvokeAsync(StateHasChanged);
+            if (balance.BalanceParts is not null && balance.BalanceParts.Any())
+            {
+                await CreateBarChart();
+            }
+        }
+        else
+        {
+            errorMessage = "Balance is null.";
+        }
+    }
+
+    private async Task CreateBarChart()
+    {
+        // Prepare data for the chart
+        var labels = balance.BalanceParts.Select(bp => bp.Name).ToArray();
+        var data = balance.BalanceParts.Select(bp => bp.Amount).ToArray();
+
+        await JSRuntime.InvokeVoidAsync("createBarChart", "balanceChart", labels, data);
+    }
+}

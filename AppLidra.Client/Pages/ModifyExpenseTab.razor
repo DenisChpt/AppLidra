@@ -1,0 +1,144 @@
+﻿@using AppLidra.Shared.Models
+@inject HttpClient Http
+
+<h1>Modify Expense</h1>
+
+@if (!isInitialized)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div>
+        <label>Name:</label>
+        <input @bind="expenseName" type="text" />
+    </div>
+    @if(isOwner)
+    {
+        <div>
+            <label>Author:</label>
+            <select @bind="expenseAuthor">
+                <option value="">-- Select Author --</option>
+                @foreach (var collaborator in collaborators)
+                {
+                    <option value="@collaborator">@collaborator</option>
+                }
+            </select>
+        </div>
+    }
+    <div>
+        <label>Amount:</label>
+        <input @bind="expenseAmount" type="number" step="0.01" />
+    </div>
+    <div>
+        <label>Date:</label>
+        <input @bind="expenseDate" type="date" />
+    </div>
+
+    <h3>Shares</h3>
+    <div>
+        @foreach (var share in expenseShares)
+        {
+            <div>
+                <label>Collaborator:</label>
+                <select @bind="share.UserName">
+                    <option value="">-- Select Collaborator --</option>
+                    @foreach (var collaborator in collaborators)
+                    {
+                        <option value="@collaborator">@collaborator</option>
+                    }
+                </select>
+                <label>Share:</label>
+                <input @bind="share.Share" type="number" step="0.01" min="0" max="1" />
+                <button @onclick="(() => RemoveShare(share))">Remove</button>
+            </div>
+        }
+    </div>
+    <button @onclick="AddShare">Add Share</button>
+
+    <div>
+        <button @onclick="SaveExpense">Save</button>
+        <button @onclick="Cancel">Cancel</button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red">@errorMessage</p>
+}
+
+@code {
+    [Parameter] public int ProjectId { get; set; }
+    [Parameter] public Expense Expense { get; set; }
+    [Parameter] public EventCallback GoToExpenses { get; set; }
+    [Parameter] public EventCallback OnExpenseModified { get; set; }
+
+    private string expenseName;
+    private string expenseAuthor;
+    private double expenseAmount;
+    private DateTime expenseDate;
+    private List<ExpenseShare> expenseShares;
+
+    private string? errorMessage;
+    private bool isInitialized = false;
+    private bool isOwner;
+    private List<string> collaborators;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ProjectId != 0)
+        {
+            collaborators = await Http.GetFromJsonAsync<List<string>>($"https://localhost:44354/api/Project/collaborators/{ProjectId}")??[];
+            isOwner = await Http.GetFromJsonAsync<bool>($"https://localhost:44354/api/Project/is-owner/{ProjectId}");
+
+            if(!isInitialized)
+            {
+                expenseName = Expense.Name;
+                expenseAuthor = Expense.Author;
+                expenseAmount = Expense.Amount;
+                expenseDate = Expense.Date;
+                expenseShares = Expense.Shares;
+                isInitialized = true;
+            }
+        }
+    }
+
+    private void AddShare()
+    {
+        expenseShares.Add(new ExpenseShare("", 0));
+    }
+
+    private void RemoveShare(ExpenseShare share)
+    {
+        expenseShares.Remove(share);
+    }
+
+    private async Task SaveExpense()
+    {
+        try
+        {
+            Expense newExpense = new(Expense.Id, expenseName, expenseAmount, expenseDate, ProjectId, expenseShares, expenseAuthor);
+            var response = await Http.PutAsJsonAsync($"https://localhost:44354/api/Expense/{newExpense.Id}", newExpense);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await OnExpenseModified.InvokeAsync();
+                await GoToExpenses.InvokeAsync();
+            }
+            else
+            {
+                errorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await GoToExpenses.InvokeAsync();
+    }
+}
+
+

@@ -1,0 +1,90 @@
+﻿@using AppLidra.Shared.Models
+@using Blazored.LocalStorage
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+
+@if (ProjectId == 0)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>Expenses</h3>
+
+    <ul>
+        @foreach (var expense in Expenses)
+        {
+            <li>
+                <h5>@expense.Name</h5>
+                <p>Author: @expense.Author</p>
+                <p>Amount: @expense.Amount</p>
+                <p>Date: @expense.Date</p>
+                <p>Shares:</p>
+                @foreach (var share in expense.Shares)
+                {
+                    <p>@share.UserName : @share.Share</p>  
+                }
+                @if (isProjectOwner || userName == expense.Author)
+                {
+                    <button @onclick="(() => DeleteExpense(expense.Id))">Delete expense</button>
+                    <button @onclick="(() => ModifyExpense(expense.Id))">Modify expense</button>
+                }
+            </li>
+
+        }
+    </ul>
+
+    <button @onclick="AddExpense">Add new expense</button>
+}
+
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    [Parameter] public int ProjectId { get; set; }
+    [Parameter] public List<Expense> Expenses { get; set; }
+    [Parameter] public EventCallback OnAddExpense { get; set; }
+    [Parameter] public EventCallback OnExpensesUpdated { get; set; }
+    [Parameter] public EventCallback<int> OnModifyExpense { get; set; }
+
+    private string errorMessage;
+    private bool isProjectOwner;
+    private string userName;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ProjectId != 0)
+        {
+            isProjectOwner = await Http.GetFromJsonAsync<bool>($"https://localhost:44354/api/Project/is-owner/{ProjectId}");
+            UserResponse? tmpUsrResponse = await Http.GetFromJsonAsync<UserResponse>($"https://localhost:44354/api/User/userName");
+            if (tmpUsrResponse is not null)
+                userName = tmpUsrResponse.UserName;
+            else
+                errorMessage = "Bug when getting userName";
+        }
+    }
+
+    private async Task AddExpense()
+    {
+        await OnAddExpense.InvokeAsync();
+    }
+
+    private async Task DeleteExpense(int ExpenseId)
+    {
+        var response = await Http.DeleteAsync($"https://localhost:44354/api/Expense/{ExpenseId}");
+        if(!response.IsSuccessStatusCode)
+            errorMessage = await response.Content.ReadAsStringAsync();
+        else
+            await OnExpensesUpdated.InvokeAsync();
+    }
+
+    private async Task ModifyExpense(int ExpenseId)
+    {
+        await OnModifyExpense.InvokeAsync(ExpenseId);
+    }
+
+
+}

@@ -1,0 +1,157 @@
+﻿@page "/project/{ProjectId:int}"
+@using AppLidra.Shared.Models
+@using Blazored.LocalStorage
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="w-64 bg-gray-100 p-4 border-r">
+        <h2 class="text-xl font-bold mb-4">@project?.Name</h2>
+
+        <div class="space-y-2">
+            <button 
+            class="w-full text-left p-2 @(ActiveTab == TabType.Details ? "bg-blue-500 text-white" : "hover:bg-gray-200")"
+            @onclick="() => ActiveTab = TabType.Details">
+                Project Details
+            </button>
+            <button 
+            class="w-full text-left p-2 @(ActiveTab == TabType.AddExpense ? "bg-blue-500 text-white" : "hover:bg-gray-200")"
+            @onclick="() => ActiveTab = TabType.AddExpense">
+                Add Expense
+            </button>
+            <button 
+            class="w-full text-left p-2 @(ActiveTab == TabType.Expenses ? "bg-blue-500 text-white" : "hover:bg-gray-200")"
+            @onclick="() => ActiveTab = TabType.Expenses">
+                Expenses
+            </button>
+            <button 
+            class="w-full text-left p-2 @(ActiveTab == TabType.Visualize ? "bg-blue-500 text-white" : "hover:bg-gray-200")"
+            @onclick="() => ActiveTab = TabType.Visualize">
+                Visualize
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="flex-1 p-6 overflow-auto">
+        @switch (ActiveTab)
+        {
+            case TabType.Details:
+                <ProjectDetailsTab 
+                Project="project" 
+                OnProjectUpdated="HandleProjectUpdated"
+                OnProjectDeleted="HandleProjectDeleted"/>
+                break;
+            case TabType.AddExpense:
+                <AddExpenseTab 
+                ProjectId="ProjectId"
+                OnExpenseAdded="LoadExpenses"
+                GoToExpenses="GoToExpenses"/>
+                break;
+            case TabType.Expenses:
+                <ExpensesTab 
+                ProjectId="ProjectId"
+                Expenses = "expenses"
+                OnExpensesUpdated = "LoadExpenses"
+                OnAddExpense="GoToAddExpense"
+                OnModifyExpense="GoToModifyExpense"/>
+                break;
+            case TabType.Visualize:
+                <VisualizeTab 
+                ProjectId="ProjectId"/>
+                break;
+            case TabType.ModifyExpense:
+                <ModifyExpenseTab 
+                ProjectId="ProjectId" 
+                Expense="expenseToModify"
+                GoToExpenses="GoToExpenses" 
+                OnExpenseModified="LoadExpenses"/>
+                break;
+        }
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+<button @onclick="NavigateToProjects">Go back to projects</button>
+<button @onclick="NavigateToLogout">Log Out</button>
+
+
+@code {
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    private string errorMessage;
+    private Expense expenseToModify;
+    private Project project;
+    private List<Expense> expenses = new();
+
+    private enum TabType
+    {
+        Details,
+        AddExpense,
+        Expenses,
+        Visualize,
+        ModifyExpense
+    }
+
+    private TabType ActiveTab { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProjectDetails();
+        await LoadExpenses();
+        ActiveTab = TabType.Details;
+    }
+
+    private async Task LoadProjectDetails()
+    {
+        Project? tmpProj = await Http.GetFromJsonAsync<Project>($"https://localhost:44354/api/Project/{ProjectId}");
+        if (tmpProj is not null)
+            project = tmpProj;
+        else
+            errorMessage = "Unexpected Error, project no longer exists, go back to projects list.";
+    }
+
+    private async Task LoadExpenses()
+    {
+        expenses = await Http.GetFromJsonAsync<List<Expense>>($"api/Project/expenses/{ProjectId}")??[];
+    }
+
+    private void HandleProjectUpdated(Project updatedProject)
+    {
+        project = updatedProject;
+    }
+
+    private void HandleProjectDeleted()
+    {
+        Navigation.NavigateTo("/projects");
+    }
+
+    private void NavigateToProjects() => Navigation.NavigateTo("/projects");
+    private void GoToAddExpense()
+    {
+        ActiveTab = TabType.AddExpense;
+    } 
+    private void GoToExpenses()
+    {
+        ActiveTab = TabType.Expenses;
+    } 
+    private async Task GoToModifyExpense(int expenseId)
+    {
+        Expense? tmpExp = await Http.GetFromJsonAsync<Expense>($"https://localhost:44354/api/Expense/{expenseId}");
+        if (tmpExp is not null)
+        {
+            expenseToModify = tmpExp;
+            ActiveTab = TabType.ModifyExpense;
+        }
+        else
+            errorMessage = "Unexpected Error, expense no longer exists.";
+       
+    }
+    private void NavigateToLogout() => Navigation.NavigateTo("/logout");
+
+}
