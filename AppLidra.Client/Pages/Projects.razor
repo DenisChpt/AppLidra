@@ -62,9 +62,8 @@ else
 
             currentUserId = await Http.GetFromJsonAsync<int>("https://localhost:44354/api/User/id");
         }
-        catch(Exception e)
+        catch
         {
-            ;
         }
         await LoadProjects();
         ;

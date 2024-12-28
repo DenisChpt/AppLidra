@@ -34,8 +34,8 @@
 @code {
     [Parameter] public int ProjectId { get; set; }
 
-    private Distribution distribution;
-    private string errorMessage;
+    private Distribution distribution = new Distribution();
+    private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
