@@ -3,7 +3,8 @@
 public class Project
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public List<Expense> Expenses { get; set; } = new List<Expense>();
+    public string Name { get; set; } = "New Project";
+    public DateTime CreatedAt { get; set; }
+    public int OwnerUserId { get; set; }
+    public List<string> Collaborators { get; set; } = [];
 }
