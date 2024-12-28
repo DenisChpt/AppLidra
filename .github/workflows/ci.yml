@@ -1,0 +1,46 @@
+name: CI - Code Quality and StyleCop Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up .NET environment
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      # Install necessary tools
+      - name: Install Tools
+        run: |
+          dotnet tool install -g dotnet-format
+          dotnet add package StyleCop.Analyzers
+
+      # Build project with StyleCop enabled
+      - name: Run StyleCop Analysis
+        run: dotnet build --configuration Release --no-restore /warnaserror
+
+      # Run tests
+      - name: Run Tests
+        run: dotnet test --no-restore --verbosity normal
+
+      # Check code format
+      - name: Check C# Code Format
+        run: dotnet format --check
+
+      # Spell check comments
+      - name: Check Comments for Spelling Errors
+        run: |
+          pip install codespell
+          codespell --skip=".git,bin,obj,node_modules" --ignore-words-list="Http,Json"
