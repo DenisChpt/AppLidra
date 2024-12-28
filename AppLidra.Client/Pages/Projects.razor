@@ -1,0 +1,123 @@
+﻿@page "/projects"
+@using AppLidra.Shared.Models
+@using System.Text.Json
+@using System.Net.Http.Headers
+@using System.Text
+@using Blazored.LocalStorage
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+
+<PageTitle>Projects</PageTitle>
+
+<h3>Projects</h3>
+
+@if (projects == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    if (!projects.Any())
+    {
+        <p>No projects found. You can create a new one.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var project in sortedProjects)
+            {
+                <li class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <!-- Afficher une couronne si l'utilisateur est l'owner -->
+                        @if (project.OwnerUserId == currentUserId)
+                        {
+                            <span class="text-yellow-500 font-bold">👑</span> <!-- Couronne pour l'owner -->
+                        }
+                        <span>@project.Name</span>
+                    </div>
+                    <button class="btn btn-primary" @onclick="() => NavigateToProjectDetail(project.Id)">
+                        View Details
+                    </button>
+                </li>
+            }
+        </ul>
+    }
+    <button class="btn btn-success" @onclick="CreateProject">Create New Project</button>
+    <button @onclick="NavigateToLogout">Log Out</button>
+
+}
+
+
+
+@code {
+    private List<Project> projects = new();
+    private List<Project> sortedProjects => projects.OrderByDescending(p => p.CreatedAt).ToList();
+    private int currentUserId; // ID de l'utilisateur actuel
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+
+            currentUserId = await Http.GetFromJsonAsync<int>("https://localhost:44354/api/User/id");
+        }
+        catch(Exception e)
+        {
+            ;
+        }
+        await LoadProjects();
+        ;
+    }
+
+    private async Task LoadProjects()
+    {
+        try
+        {
+            projects = await Http.GetFromJsonAsync<List<Project>>("https://localhost:44354/api/Project") ?? new List<Project>();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during request: {ex.Message}");
+        }
+    }
+
+    private void NavigateToProjectDetail(int projectId)
+    {
+        Navigation.NavigateTo($"/project/{projectId}");
+    }
+
+    private async Task CreateProject()
+    {
+        var newProject = new Project
+            {
+                Name = "New Project",
+                CreatedAt = DateTime.UtcNow,
+            };
+
+        var token = await LocalStorage.GetItemAsync<string>("authToken");
+
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44354/api/Project")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(newProject), Encoding.UTF8, "application/json"),
+                Headers = { Authorization = new AuthenticationHeaderValue("Bearer", token) }
+            };
+
+        var response = await Http.SendAsync(requestMessage);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Project? createdProject = await response.Content.ReadFromJsonAsync<Project>();
+            if (createdProject != null)
+                projects.Add(createdProject);
+        }
+        else
+        {
+            Console.WriteLine("Failed to create project.");
+        }
+    }
+
+    private void NavigateToLogout() => Navigation.NavigateTo("/logout");
+
+}

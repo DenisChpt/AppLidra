@@ -1,32 +1,23 @@
 ﻿@page "/"
-@using AppLidra.Shared.Models
+@using Microsoft.AspNetCore.Components
 
-<h3>My Projects</h3>
+<h1>Welcome to AppLidra</h1>
 
-<ul>
-    @foreach (var project in projects)
-    {
-        <li>
-            <a href="@($"/project/{project.Id}")">@project.Name</a>
-        </li>
-    }
-</ul>
-
-<button @onclick="CreateNewProject">Créer un nouveau projet</button>
+<div>
+    <button @onclick="NavigateToLogin">Login</button>
+    <button @onclick="NavigateToSignin">Sign Up</button>
+</div>
 
 @code {
-    private List<Project> projects = new List<Project>();
+    [Inject] private NavigationManager Navigation { get; set; } = null!;
 
-    protected override async Task OnInitializedAsync()
+    private void NavigateToLogin()
     {
-        // call api to load projects
-        throw new NotImplementedException();
-
+        Navigation.NavigateTo("/login");
     }
 
-    private async Task CreateNewProject()
+    private void NavigateToSignin()
     {
-        // call api to create new project
-        throw new NotImplementedException();
+        Navigation.NavigateTo("/signin");
     }
 }
