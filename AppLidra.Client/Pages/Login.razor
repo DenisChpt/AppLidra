@@ -1,29 +1,66 @@
 ﻿@page "/login"
+@using System.Net.Http.Json
 @using AppLidra.Shared.Models
+@using Blazored.LocalStorage
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
 
-<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<h1>Login</h1>
 
-    <div>
-        <label>Username</label>
-        <InputText @bind-Value="loginModel.Username" />
-    </div>
+<div>
+    <label>Email:</label>
+    <input @bind="logs.Email" type="email" />
+</div>
+<div>
+    <label>Password:</label>
+    <input @bind="logs.Password" type="password" />
+</div>
+<div>
+    <button @onclick="LoginUser">Login</button>
+</div>
 
-    <div>
-        <label>Password</label>
-        <InputText @bind-Value="loginModel.Password" type="password" />
-    </div>
+<div>
+    <button @onclick="NavigateToHome">Home</button>
+    <button @onclick="NavigateToSignin">Sign Up</button>
+</div>
 
-    <button type="submit">Login</button>
-</EditForm>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
 
 @code {
-    private LoginModel loginModel = new LoginModel();
+    private LoginModel logs = new();
+    private string? errorMessage;
 
-    private async Task HandleLogin()
+    private async Task LoginUser()
     {
-        // call api to login
-        throw new NotImplementedException();
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:44354/api/Auth/login", logs);
+            if (response.IsSuccessStatusCode)
+            {
+                // Claims the token of the response
+                var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
+
+                // saves it in the local storage
+                await LocalStorage.SetItemAsync("authToken", authResponse?.Token);
+
+                // Redirects to projects page
+                Navigation.NavigateTo("/projects");
+            }
+            else
+            {
+                errorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
     }
+
+    private void NavigateToHome() => Navigation.NavigateTo("/");
+    private void NavigateToSignin() => Navigation.NavigateTo("/signin");
 }
