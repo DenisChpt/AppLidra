@@ -33,7 +33,7 @@ jobs:
           dotnet add AppLidra.Shared/AppLidra.Shared.csproj package StyleCop.Analyzers
 
       # Build all projects with StyleCop enabled
-      - name: Run StyleCop Analysis
+      - name: Build project with StyleCop Analysis
         run: |
           dotnet build AppLidra.Client/AppLidra.Client.csproj --configuration Release --no-restore ${{ env.WARN_AS_ERROR }}
           dotnet build AppLidra.Server/AppLidra.Server.csproj --configuration Release --no-restore ${{ env.WARN_AS_ERROR }}
