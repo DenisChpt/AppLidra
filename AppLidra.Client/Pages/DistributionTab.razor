@@ -1,0 +1,66 @@
+﻿@using AppLidra.Shared.Models
+@inject IJSRuntime JSRuntime
+@inject HttpClient Http
+
+<div>
+    <h4 class="font-bold mb-2">Distribution of Expenses</h4>
+    @if (distribution is null)
+    {
+        <p>Loading distribution data...</p>
+    }
+    else if (!distribution.DistributionParts.Any())
+    {
+        <p>No expenses found for this project.</p>
+    }
+    else
+    {
+        <h5>Details:</h5>
+        <ul>
+            @foreach (var d in distribution.DistributionParts)
+            {
+                <li>@d.Name: @d.Share</li>
+            }
+        </ul>
+        <h5>Graph:</h5>
+        <canvas id="distributionChart" width="100" height="100"></canvas>
+    }
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    [Parameter] public int ProjectId { get; set; }
+
+    private Distribution distribution;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Distribution? tmpDistrib = await Http.GetFromJsonAsync<Distribution>($"api/Project/distribution/{ProjectId}");
+        if (tmpDistrib is not null)
+        {
+            distribution = tmpDistrib;
+            await InvokeAsync(StateHasChanged);
+            if (distribution.DistributionParts is not null && distribution.DistributionParts.Any())
+            {
+                await CreatePieChart();
+            }
+        }
+        else
+        {
+            errorMessage = "Distribution is null";
+        }
+    }
+
+    private async Task CreatePieChart()
+    {
+        // Prepare data for the chart
+        var labels = distribution.DistributionParts.Select(dp => dp.Name).ToArray();
+        var data = distribution.DistributionParts.Select(dp => dp.Share * 100).ToArray();
+
+        await JSRuntime.InvokeVoidAsync("createPieChart", "distributionChart", labels, data);
+    }
+}
