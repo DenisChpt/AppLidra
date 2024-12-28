@@ -68,20 +68,20 @@ else
 
 @code {
     [Parameter] public int ProjectId { get; set; }
-    [Parameter] public Expense Expense { get; set; }
+    [Parameter] public required Expense Expense { get; set; }
     [Parameter] public EventCallback GoToExpenses { get; set; }
     [Parameter] public EventCallback OnExpenseModified { get; set; }
 
-    private string expenseName;
-    private string expenseAuthor;
+    private string expenseName = String.Empty;
+    private string expenseAuthor = String.Empty;
     private double expenseAmount;
     private DateTime expenseDate;
-    private List<ExpenseShare> expenseShares;
+    private List<ExpenseShare> expenseShares = new List<ExpenseShare>();
 
     private string? errorMessage;
     private bool isInitialized = false;
     private bool isOwner;
-    private List<string> collaborators;
+    private List<string> collaborators = new List<string>();
 
     protected override async Task OnParametersSetAsync()
     {
