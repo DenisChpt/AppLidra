@@ -25,19 +25,19 @@ jobs:
       - name: Install Tools
         run: |
           dotnet tool install -g dotnet-format
-          dotnet add package StyleCop.Analyzers
+          dotnet add AppLidra.sln package StyleCop.Analyzers
 
       # Build project with StyleCop enabled
       - name: Run StyleCop Analysis
-        run: dotnet build --configuration Release --no-restore /warnaserror
+        run: dotnet build AppLidra.sln --configuration Release --no-restore /warnaserror
 
       # Run tests
       - name: Run Tests
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet test AppLidra.sln --no-restore --verbosity normal
 
       # Check code format
       - name: Check C# Code Format
-        run: dotnet format --check
+        run: dotnet format AppLidra.sln --check
 
       # Spell check comments
       - name: Check Comments for Spelling Errors
