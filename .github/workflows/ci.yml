@@ -21,15 +21,20 @@ jobs:
         with:
           dotnet-version: '8.0'
 
-      # Install necessary tools
+      # Install necessary tools and add StyleCop to all projects
       - name: Install Tools
         run: |
           dotnet tool install -g dotnet-format
-          dotnet add AppLidra.sln package StyleCop.Analyzers
+          dotnet add AppLidra.Client/AppLidra.Client.csproj package StyleCop.Analyzers
+          dotnet add AppLidra.Server/AppLidra.Server.csproj package StyleCop.Analyzers
+          dotnet add AppLidra.Shared/AppLidra.Shared.csproj package StyleCop.Analyzers
 
-      # Build project with StyleCop enabled
+      # Build all projects with StyleCop enabled
       - name: Run StyleCop Analysis
-        run: dotnet build AppLidra.sln --configuration Release --no-restore /warnaserror
+        run: |
+          dotnet build AppLidra.Client/AppLidra.Client.csproj --configuration Release --no-restore /warnaserror
+          dotnet build AppLidra.Server/AppLidra.Server.csproj --configuration Release --no-restore /warnaserror
+          dotnet build AppLidra.Shared/AppLidra.Shared.csproj --configuration Release --no-restore /warnaserror
 
       # Run tests
       - name: Run Tests
