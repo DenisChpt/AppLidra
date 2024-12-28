@@ -1,0 +1,116 @@
+﻿@using AppLidra.Shared.Models
+@inject HttpClient Http
+
+<h1>Add Expense</h1>
+
+@if (ProjectId == 0)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div>
+        <label>Name:</label>
+        <input @bind="expenseName" type="text" />
+    </div>
+    <div>
+        <label>Amount:</label>
+        <input @bind="expenseAmount" type="number" step="0.01" />
+    </div>
+    <div>
+        <label>Date:</label>
+        <input @bind="expenseDate" type="date" />
+    </div>
+
+    <h3>Shares</h3>
+    <div>
+        @foreach (var share in expenseShares)
+        {
+            <div>
+                <label>Collaborator:</label>
+                <select @bind="share.UserName">
+                    <option value="">-- Select Collaborator --</option>
+                    @foreach (var collaborator in collaborators)
+                    {
+                        <option value="@collaborator">@collaborator</option>
+                    }
+                </select>
+                <label>Share:</label>
+                <input @bind="share.Share" type="number" step="0.01" min="0" max="1" />
+                <button @onclick="(() => RemoveShare(share))">Remove</button>
+            </div>
+        }
+    </div>
+    <button @onclick="AddShare">Add Share</button>
+
+    <div>
+        <button @onclick="SaveExpense">Save</button>
+        <button @onclick="Cancel">Cancel</button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red">@errorMessage</p>
+}
+
+@code {
+    [Parameter] public int ProjectId { get; set; }
+    [Parameter] public EventCallback GoToExpenses { get; set; }
+    [Parameter] public EventCallback OnExpenseAdded { get; set; }
+
+    private string expenseName = "New Expense";
+    private double expenseAmount = 0;
+    private DateTime expenseDate = DateTime.Now;
+    private List<ExpenseShare> expenseShares = [];
+
+    private string? errorMessage;
+    private List<string> collaborators;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ProjectId != 0)
+        {
+            collaborators = await Http.GetFromJsonAsync<List<string>>($"https://localhost:44354/api/Project/collaborators/{ProjectId}")??[];
+        }
+    }
+
+    private void AddShare()
+    {
+        expenseShares.Add(new ExpenseShare("", 0));
+    }
+
+    private void RemoveShare(ExpenseShare share)
+    {
+        expenseShares.Remove(share);
+    }
+
+    private async Task SaveExpense()
+    {
+        try
+        {
+            ExpenseModel expense = new(expenseName, expenseAmount, expenseDate, ProjectId, expenseShares);
+            var response = await Http.PostAsJsonAsync("https://localhost:44354/api/Expense", expense);
+
+            if (response.IsSuccessStatusCode)
+            {
+                await OnExpenseAdded.InvokeAsync();
+                await GoToExpenses.InvokeAsync();
+            }
+            else
+            {
+                errorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private async Task Cancel()
+    {
+        await GoToExpenses.InvokeAsync();
+    }
+}
+
+
