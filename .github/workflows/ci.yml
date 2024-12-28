@@ -45,7 +45,7 @@ jobs:
 
       # Check code format
       - name: Check C# Code Format
-        run: dotnet format AppLidra.sln --check
+        run: dotnet format AppLidra.sln --verify-no-changes
 
       # Spell check comments
       - name: Check Comments for Spelling Errors
