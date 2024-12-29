@@ -1,4 +1,10 @@
-﻿using Blazored.LocalStorage;
+﻿//-----------------------------------------------------------------------
+// <copiright file="AuthorizationMessageHandler.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+
+using Blazored.LocalStorage;
 using System.Net.Http.Headers;
 
 namespace AppLidra.Client.Services;

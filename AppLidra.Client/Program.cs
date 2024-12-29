@@ -1,3 +1,9 @@
+//-----------------------------------------------------------------------
+// <copiright file="Program.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+
 using AppLidra.Client;
 using AppLidra.Client.Services;
 using AppLidra.Client.Handlers;

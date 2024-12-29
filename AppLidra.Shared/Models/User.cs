@@ -1,4 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿//-----------------------------------------------------------------------
+// <copiright file="User.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+
+using System.ComponentModel.DataAnnotations;
 
 namespace AppLidra.Shared.Models
 {

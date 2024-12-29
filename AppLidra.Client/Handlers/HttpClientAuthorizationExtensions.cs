@@ -1,4 +1,10 @@
-﻿using AppLidra.Client.Services;
+﻿//-----------------------------------------------------------------------
+// <copiright file="HttpClientAuthorizationExtensions.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+
+using AppLidra.Client.Services;
 namespace AppLidra.Client.Handlers;
 public static class HttpClientAuthorizationExtensions
 {

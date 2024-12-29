@@ -1,3 +1,9 @@
+//-----------------------------------------------------------------------
+// <copiright file="Program.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+
 using AppLidra.Server.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

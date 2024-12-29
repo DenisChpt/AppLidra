@@ -1,4 +1,10 @@
-﻿using AppLidra.Shared.Models;
+﻿//-----------------------------------------------------------------------
+// <copiright file="JsonData.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+
+using AppLidra.Shared.Models;
 
 namespace AppLidra.Shared.Services
 {

@@ -1,4 +1,9 @@
-﻿using AppLidra.Server.Data;
+﻿//-----------------------------------------------------------------------
+// <copiright file="AuthController.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+using AppLidra.Server.Data;
 using AppLidra.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,10 @@
-﻿namespace AppLidra.Shared.Models
+﻿//-----------------------------------------------------------------------
+// <copiright file="LoginModel.cs">
+//      <author> Kamil.D Racim.Z Denis.C </author>
+// </copiright>
+//-----------------------------------------------------------------------
+
+namespace AppLidra.Shared.Models
 {
     public class LoginModel
     {
