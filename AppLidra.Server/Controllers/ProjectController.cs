@@ -328,7 +328,7 @@ namespace AppLidra.Server.Controllers
 
             Dictionary<string, double> balances = [];
 
-            // Credits (payed amounts)
+            // Credits (paid amounts)
             foreach (Expense expense in expenses)
             {
                 if (!balances.ContainsKey(expense.Author))

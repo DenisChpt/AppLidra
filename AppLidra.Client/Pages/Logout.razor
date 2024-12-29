@@ -14,16 +14,13 @@
 @code {
     private async Task LogoutUser()
     {
-        // Supprimer le token du stockage local
         await LocalStorage.RemoveItemAsync("authToken");
 
-        // Rediriger vers la page de login
         Navigation.NavigateTo("/login", forceLoad: true);
     }
 
     private void CancelLogout()
     {
-        // Retourner à la page précédente ou à la page des projets
         Navigation.NavigateTo("/projects");
     }
 }

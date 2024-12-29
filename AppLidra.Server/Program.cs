@@ -20,15 +20,15 @@ if (!Directory.Exists(dataFolder))
 
 builder.Services.AddSingleton(new JsonDataStore(Path.Combine(dataFolder, "data.json")));
 
-//Authentification
+//Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         var jwtSettings = builder.Configuration.GetSection("Jwt");
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,  // Modifié à false pour le test
-            ValidateAudience = false, // Modifié à false pour le test
+            ValidateIssuer = false,  // Modifiï¿½ ï¿½ false pour le test
+            ValidateAudience = false, // Modifiï¿½ ï¿½ false pour le test
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
