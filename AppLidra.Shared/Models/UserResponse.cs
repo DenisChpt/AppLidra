@@ -13,7 +13,7 @@ namespace AppLidra.Shared.Models
     /// <remarks>
     /// Initializes a new instance of the <see cref="UserResponse"/> class.
     /// </remarks>
-    /// <param name="username">The user name.</param>
+    /// <param name="userName">The user name.</param>
     public class UserResponse(string userName)
     {
         /// <summary>

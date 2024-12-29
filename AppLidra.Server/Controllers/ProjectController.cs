@@ -32,11 +32,11 @@ namespace AppLidra.Server.Controllers
         [HttpGet]
         public IActionResult GetAllProjects()
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
             User user = this._store.Users.First(u => u.Id == userId);
             string userName = user.UserName ?? string.Empty;
             List<Project> projects = this._store.Projects.Where(p => p.OwnerUserId == userId || p.Collaborators.Contains(userName)).ToList();
-            return Ok(projects);
+            return this.Ok(projects);
         }
 
         /// <summary>
@@ -47,9 +47,9 @@ namespace AppLidra.Server.Controllers
         [HttpGet("is-owner/{projectId}")]
         public IActionResult IsOwner(int projectId)
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
             bool res = this._store.Projects.Exists(p => p.Id == projectId && p.OwnerUserId == userId);
-            return Ok(res);
+            return this.Ok(res);
         }
 
         /// <summary>
@@ -60,11 +60,11 @@ namespace AppLidra.Server.Controllers
         [HttpPost]
         public IActionResult CreateProject([FromBody] Project project)
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
             User user = this._store.Users.First(u => u.Id == userId);
             if (project is null)
             {
-                return BadRequest("Project is null");
+                return this.BadRequest("Project is null");
             }
 
             project.Id = this._store.Projects.Count != 0 ? this._store.Projects.Max(p => p.Id) + 1 : 1;
@@ -75,7 +75,7 @@ namespace AppLidra.Server.Controllers
             this._store.Projects.Add(project);
             this._store.SaveChanges();
 
-            return Ok(project);
+            return this.Ok(project);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace AppLidra.Server.Controllers
         public IActionResult GetProjectById(int projectId)
         {
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == projectId);
-            return project == null ? NotFound("Project not found") : Ok(project);
+            return project == null ? this.NotFound("Project not found") : this.Ok(project);
         }
 
         /// <summary>
@@ -101,14 +101,14 @@ namespace AppLidra.Server.Controllers
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == projectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
             _ = this._store.Projects.Remove(project);
             _ = this._store.Expenses.RemoveAll(e => e.ProjectId == projectId);
             this._store.SaveChanges();
 
-            return Ok("Project and associated expenses deleted successfully");
+            return this.Ok("Project and associated expenses deleted successfully");
         }
 
         /// <summary>
@@ -122,35 +122,35 @@ namespace AppLidra.Server.Controllers
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == collabInfo.ProjectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
             if (userId != project.OwnerUserId)
             {
-                return NotFound("User demanding is not the owner of the project");
+                return this.NotFound("User demanding is not the owner of the project");
             }
 
             if (this._store.Users.FirstOrDefault(u => u.UserName == collabInfo.CollaboratorName) == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
             if (collabInfo is null)
             {
-                return BadRequest("Collaborator infos are null");
+                return this.BadRequest("Collaborator infos are null");
             }
 
             if (project.Collaborators.Contains(collabInfo.CollaboratorName))
             {
-                return BadRequest("Collaborator already exists in the project.");
+                return this.BadRequest("Collaborator already exists in the project.");
             }
 
             project.Collaborators.Add(collabInfo.CollaboratorName);
 
             this._store.SaveChanges();
 
-            return Ok("Collaborator added.");
+            return this.Ok("Collaborator added.");
         }
 
         /// <summary>
@@ -164,34 +164,34 @@ namespace AppLidra.Server.Controllers
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == collabInfo.ProjectId);
             if (project == null)
             {
-                return NotFound("Project not found.");
+                return this.NotFound("Project not found.");
             }
 
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
             if (userId != project.OwnerUserId)
             {
-                return NotFound("User demanding is not the owner of the project.");
+                return this.NotFound("User demanding is not the owner of the project.");
             }
 
             User? collaboratorToRemove = this._store.Users.FirstOrDefault(u => u.UserName == collabInfo.CollaboratorName);
             if (collaboratorToRemove is null)
             {
-                return NotFound("User not found.");
+                return this.NotFound("User not found.");
             }
 
             if (collaboratorToRemove.Id == project.OwnerUserId)
             {
-                return NotFound("The project owner has to be a collabaorator.");
+                return this.NotFound("The project owner has to be a collabaorator.");
             }
 
             if (collabInfo is null)
             {
-                return BadRequest("Collaborator infos are null.");
+                return this.BadRequest("Collaborator infos are null.");
             }
 
             if (!project.Collaborators.Contains(collabInfo.CollaboratorName))
             {
-                return BadRequest("Collaborator does not exists in the project.");
+                return this.BadRequest("Collaborator does not exists in the project.");
             }
 
             _ = project.Collaborators.Remove(collabInfo.CollaboratorName);
@@ -230,7 +230,7 @@ namespace AppLidra.Server.Controllers
 
             this._store.SaveChanges();
 
-            return Ok("Collaborator removed.");
+            return this.Ok("Collaborator removed.");
         }
 
         /// <summary>
@@ -244,28 +244,28 @@ namespace AppLidra.Server.Controllers
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == collabInfo.ProjectId);
             if (project == null)
             {
-                return NotFound("Project not found.");
+                return this.NotFound("Project not found.");
             }
 
             User? collaboratorToRemove = this._store.Users.FirstOrDefault(u => u.UserName == collabInfo.CollaboratorName);
             if (collaboratorToRemove is null)
             {
-                return NotFound("User not found.");
+                return this.NotFound("User not found.");
             }
 
             if (collaboratorToRemove.Id == project.OwnerUserId)
             {
-                return NotFound("The project owner has to be a collabaorator.");
+                return this.NotFound("The project owner has to be a collabaorator.");
             }
 
             if (collabInfo is null)
             {
-                return BadRequest("Collaborator infos are null.");
+                return this.BadRequest("Collaborator infos are null.");
             }
 
             if (!project.Collaborators.Contains(collabInfo.CollaboratorName))
             {
-                return BadRequest("Collaborator does not exists in the project.");
+                return this.BadRequest("Collaborator does not exists in the project.");
             }
 
             _ = project.Collaborators.Remove(collabInfo.CollaboratorName);
@@ -304,7 +304,7 @@ namespace AppLidra.Server.Controllers
 
             this._store.SaveChanges();
 
-            return Ok("Collaborator removed.");
+            return this.Ok("Collaborator removed.");
         }
 
         /// <summary>
@@ -318,19 +318,19 @@ namespace AppLidra.Server.Controllers
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == newProjectInfos.ProjectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
             if (newProjectInfos is null)
             {
-                return BadRequest("New project infos are null");
+                return this.BadRequest("New project infos are null");
             }
 
             project.Name = newProjectInfos.NewName;
 
             this._store.SaveChanges();
 
-            return Ok("Collaborator added.");
+            return this.Ok("Collaborator added.");
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace AppLidra.Server.Controllers
         public IActionResult GetExpenses(int projectId)
         {
             List<Expense> expenses = store.Expenses.Where(e => e.ProjectId == projectId).ToList();
-            return Ok(expenses);
+            return this.Ok(expenses);
         }
 
         /// <summary>
@@ -354,7 +354,7 @@ namespace AppLidra.Server.Controllers
         public IActionResult GetCollaborators(int projectId)
         {
             List<string> collaborators = store.Projects.First(p => p.Id == projectId).Collaborators;
-            return Ok(collaborators);
+            return this.Ok(collaborators);
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace AppLidra.Server.Controllers
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == projectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
             List<Expense> expenses = this._store.Expenses.Where(e => e.ProjectId == projectId).ToList();
@@ -378,7 +378,7 @@ namespace AppLidra.Server.Controllers
 
             if (totalAmount == 0)
             {
-                return Ok(distribution);
+                return this.Ok(distribution);
             }
 
             List<DistributionPart> groupedExpenses = expenses
@@ -390,7 +390,7 @@ namespace AppLidra.Server.Controllers
 
             distribution.DistributionParts = groupedExpenses;
 
-            return Ok(distribution);
+            return this.Ok(distribution);
         }
 
         /// <summary>
@@ -404,7 +404,7 @@ namespace AppLidra.Server.Controllers
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == projectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
             List<Expense> expenses = this._store.Expenses.Where(e => e.ProjectId == projectId).ToList();
@@ -442,7 +442,7 @@ namespace AppLidra.Server.Controllers
                 BalanceParts = balances.Select(b => new BalancePart(name: b.Key, amount: Math.Round(b.Value, 2))).ToList(),
             };
 
-            return Ok(balance);
+            return this.Ok(balance);
         }
     }
 }

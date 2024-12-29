@@ -34,7 +34,7 @@ namespace AppLidra.Server.Controllers
         public IActionResult GetExpenses(int expenseId)
         {
             Expense expenses = this._store.Expenses.First(e => e.Id == expenseId);
-            return Ok(expenses);
+            return this.Ok(expenses);
         }
 
         /// <summary>
@@ -45,18 +45,18 @@ namespace AppLidra.Server.Controllers
         [HttpPost]
         public IActionResult AddExpense([FromBody] ExpenseModel expenseModel)
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
 
             User? user = this._store.Users.FirstOrDefault(u => u.Id == userId);
             if (user == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == expenseModel.ProjectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
             string userName = user.UserName ?? string.Empty;
@@ -64,12 +64,12 @@ namespace AppLidra.Server.Controllers
 
             if (!hasRights)
             {
-                return NotFound("User not a collaborator");
+                return this.NotFound("User not a collaborator");
             }
 
             if ((expenseModel is null) || (expenseModel.Shares is null))
             {
-                return BadRequest("Invalid expense model");
+                return this.BadRequest("Invalid expense model");
             }
 
             for (int i = 0; i < expenseModel.Shares.Count; i++)
@@ -77,14 +77,14 @@ namespace AppLidra.Server.Controllers
                 User? shareHolder = this._store.Users.FirstOrDefault(u => u.Id == userId);
                 if (shareHolder == null)
                 {
-                    return NotFound("ShareHolder not found");
+                    return this.NotFound("ShareHolder not found");
                 }
 
                 string shareHolderName = shareHolder.UserName ?? string.Empty;
                 bool isCollaborator = project.Collaborators.Contains(shareHolderName);
                 if (!isCollaborator)
                 {
-                    return NotFound("ShareHolder is not a collaborator");
+                    return this.NotFound("ShareHolder is not a collaborator");
                 }
             }
 
@@ -94,7 +94,7 @@ namespace AppLidra.Server.Controllers
             this._store.Expenses.Add(expense);
             this._store.SaveChanges();
 
-            return Ok(expense);
+            return this.Ok(expense);
         }
 
         /// <summary>
@@ -106,24 +106,24 @@ namespace AppLidra.Server.Controllers
         [HttpPut("{expenseId}")]
         public IActionResult UpdateExpense(int expenseId, [FromBody] Expense updatedExpense)
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
 
             User? user = this._store.Users.FirstOrDefault(u => u.Id == userId);
             if (user == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
             Expense? expense = this._store.Expenses.FirstOrDefault(e => e.Id == expenseId);
             if (expense == null)
             {
-                return NotFound("Expense not found");
+                return this.NotFound("Expense not found");
             }
 
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == expense.ProjectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
             string userName = user.UserName ?? string.Empty;
@@ -131,12 +131,12 @@ namespace AppLidra.Server.Controllers
 
             if (!hasRights)
             {
-                return NotFound("User not a collaborator");
+                return this.NotFound("User not a collaborator");
             }
 
             if (updatedExpense is null)
             {
-                return BadRequest("Invalid expense model");
+                return this.BadRequest("Invalid expense model");
             }
 
             expense.Name = updatedExpense.Name;
@@ -147,7 +147,7 @@ namespace AppLidra.Server.Controllers
 
             this._store.SaveChanges();
 
-            return Ok(expense);
+            return this.Ok(expense);
         }
 
         /// <summary>
@@ -158,24 +158,24 @@ namespace AppLidra.Server.Controllers
         [HttpDelete("{expenseId}")]
         public IActionResult DeleteExpense(int expenseId)
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
 
             User? user = this._store.Users.FirstOrDefault(u => u.Id == userId);
             if (user == null)
             {
-                return NotFound("User not found");
+                return this.NotFound("User not found");
             }
 
             Expense? expense = this._store.Expenses.FirstOrDefault(e => e.Id == expenseId);
             if (expense == null)
             {
-                return NotFound("Expense not found");
+                return this.NotFound("Expense not found");
             }
 
             Project? project = this._store.Projects.FirstOrDefault(p => p.Id == expense.ProjectId);
             if (project == null)
             {
-                return NotFound("Project not found");
+                return this.NotFound("Project not found");
             }
 
             string userName = user.UserName ?? string.Empty;
@@ -183,14 +183,14 @@ namespace AppLidra.Server.Controllers
 
             if (!hasRights)
             {
-                return NotFound("User not a collaborator");
+                return this.NotFound("User not a collaborator");
             }
 
             _ = this._store.Expenses.Remove(expense);
 
             this._store.SaveChanges();
 
-            return Ok("Expense deleted successfully");
+            return this.Ok("Expense deleted successfully");
         }
     }
 }

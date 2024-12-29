@@ -32,8 +32,8 @@ namespace AppLidra.Server.Controllers
         [HttpGet("id")]
         public IActionResult GetId()
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
-            return Ok(userId);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            return this.Ok(userId);
         }
 
         /// <summary>
@@ -43,10 +43,10 @@ namespace AppLidra.Server.Controllers
         [HttpGet("userName")]
         public IActionResult GetUserName()
         {
-            int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
             User? user = this._store.Users.First(p => p.Id == userId);
             string userName = user.UserName ?? string.Empty;
-            return user is not null ? Ok(new UserResponse(userName)) : (IActionResult)Ok(null);
+            return user is not null ? this.Ok(new UserResponse(userName)) : (IActionResult)this.Ok(null);
         }
 
         /// <summary>
@@ -57,8 +57,8 @@ namespace AppLidra.Server.Controllers
         [HttpGet("userName/{id}")]
         public IActionResult GetUserName(int id)
         {
-            User? user = _store.Users.First(p => p.Id == id);
-            return user is not null ? Ok(user.UserName) : (IActionResult)Ok(null);
+            User? user = this._store.Users.First(p => p.Id == id);
+            return user is not null ? this.Ok(user.UserName) : (IActionResult)this.Ok(null);
         }
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace AppLidra.Server.Controllers
         [HttpGet("id/{userName}")]
         public IActionResult GetId(string userName)
         {
-            User? user = _store.Users.First(p => p.UserName == userName);
-            return user is not null ? Ok(user.Id) : (IActionResult)Ok(0);
+            User? user = this._store.Users.First(p => p.UserName == userName);
+            return user is not null ? this.Ok(user.Id) : (IActionResult)this.Ok(0);
         }
     }
 }

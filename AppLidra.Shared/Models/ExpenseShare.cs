@@ -24,8 +24,8 @@ namespace AppLidra.Shared.Models
                 throw new ArgumentException("share out of bounds.");
             }
 
-            UserName = userName;
-            Share = share;
+            this.UserName = userName;
+            this.Share = share;
         }
 
         /// <summary>

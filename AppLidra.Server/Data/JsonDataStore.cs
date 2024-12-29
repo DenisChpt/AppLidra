@@ -38,10 +38,10 @@ namespace AppLidra.Server.Data
 
             if (!File.Exists(this._filePath))
             {
-                SaveChanges();
+                this.SaveChanges();
             }
 
-            LoadData();
+            this.LoadData();
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace AppLidra.Server.Data
         {
             lock (this._lock)
             {
-                JsonData data = new (Projects, Users, Expenses);
+                JsonData data = new (this.Projects, this.Users, this.Expenses);
 
                 File.WriteAllText(this._filePath, JsonSerializer.Serialize(data, _serializeOptions));
             }
@@ -79,9 +79,9 @@ namespace AppLidra.Server.Data
                 string json = File.ReadAllText(this._filePath);
                 JsonData? data = JsonSerializer.Deserialize<JsonData>(json, _deserializeOptions);
 
-                Projects = data?.Projects ?? [];
-                Users = data?.Users ?? [];
-                Expenses = data?.Expenses ?? [];
+                this.Projects = data?.Projects ?? [];
+                this.Users = data?.Users ?? [];
+                this.Expenses = data?.Expenses ?? [];
             }
         }
     }

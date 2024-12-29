@@ -1,39 +1,58 @@
+# Indicates that this is the root EditorConfig file
 root = true
 
+# Applies to all .cs files
 [*.cs]
+# Use spaces instead of tabs for indentation
 indent_style = space
+# Indent with 4 spaces
 indent_size = 4
 
 # Disable C# header conventions
 dotnet_diagnostic.SA1633.severity = none
 
-# Opening square brackets could be preceded by a space.
+# Disable the rule that requires a space before an opening square bracket (SA1010)
 dotnet_diagnostic.SA1010.severity = none
 
-# Closing square brackets could be followed by a space.
+# Disable the rule that requires a space after a closing square bracket (SA1011)
 dotnet_diagnostic.SA1011.severity = none
 
-# Prefix local calls with 'this.' is not required.
-dotnet_diagnostic.SA1101.severity = none
 
-# Field names could begin with an underscore
+# Disable the rule that prohibits field names from starting with an underscore (SA1309)
 dotnet_diagnostic.SA1309.severity = none
 
+# Disable the rule about spacing around closing parentheses (SA1009)
 dotnet_diagnostic.SA1009.severity = none
+
+# Disable the rule that requires collection properties to be read-only (CA2227)
 dotnet_diagnostic.CA2227.severity = none
 
-# DotNet conventions
+# Disable the rule that requires blank lines between elements (SA1516)
+dotnet_diagnostic.SA1516.severity = none
+
+# .NET coding conventions
+
+# Suggest using 'this.' when referring to fields (qualification for field)
 dotnet_style_qualification_for_field = true:suggestion
+
+# Warn if tuple element names are not inferred
 dotnet_style_prefer_inferred_tuple_names = true:warning
+
+# Warn if anonymous type member names are not inferred
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:warning
 
+# Warn if objects are not properly disposed before going out of scope (CA2000)
 dotnet_diagnostic.CA2000.severity = warning
+
+# Raise an error if SQL queries are not properly handled (CA2100)
 dotnet_diagnostic.CA2100.severity = error
 
+# Applies to .csproj and .sln files
 [*.{csproj,sln}]
+# Use 2 spaces for indentation in these files
 indent_size = 2
 
+# Applies specifically to Program.cs
 [Program.cs]
-
-# Using directive could be placed outside of namespace in Program.cs.
+# Disable the rule that suggests placing using directives inside the namespace (SA1200)
 dotnet_diagnostic.SA1200.severity = none

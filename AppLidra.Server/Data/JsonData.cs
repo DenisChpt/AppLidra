@@ -22,9 +22,9 @@ namespace AppLidra.Server.Data
         /// <param name="expenses">The list of expenses.</param>
         public JsonData(List<Project> projects, List<User> users, List<Expense> expenses)
         {
-            Projects = projects ?? [];
-            Users = users ?? [];
-            Expenses = expenses ?? [];
+            this.Projects = projects ?? [];
+            this.Users = users ?? [];
+            this.Expenses = expenses ?? [];
         }
 
         /// <summary>

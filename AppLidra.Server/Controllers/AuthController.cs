@@ -40,11 +40,11 @@ namespace AppLidra.Server.Controllers
             User? existingUser = this._store.Users.FirstOrDefault(u => u.Email == logs.Email && u.Password == logs.Password);
             if (existingUser == null)
             {
-                return Unauthorized("Invalid credentials");
+                return this.Unauthorized("Invalid credentials");
             }
 
-            string token = GenerateJwtToken(existingUser);
-            return Ok(new { Token = token });
+            string token = this.GenerateJwtToken(existingUser);
+            return this.Ok(new { Token = token });
         }
 
         /// <summary>
@@ -55,25 +55,25 @@ namespace AppLidra.Server.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] User user)
         {
-            if (_store.Users.Any(u => u.Email == user.Email))
+            if (this._store.Users.Any(u => u.Email == user.Email))
             {
-                return BadRequest("User already exists.");
+                return this.BadRequest("User already exists.");
             }
-            else if (_store.Users.Any(u => u.UserName == user.UserName))
+            else if (this._store.Users.Any(u => u.UserName == user.UserName))
             {
-                return BadRequest("User Name already used.");
+                return this.BadRequest("User Name already used.");
             }
 
             if (user is null)
             {
-                return BadRequest("User is null.");
+                return this.BadRequest("User is null.");
             }
 
             user.Id = this._store.Users.Count != 0 ? this._store.Users.Max(u => u.Id) + 1 : 1;
             this._store.Users.Add(user);
             this._store.SaveChanges();
 
-            return Ok();
+            return this.Ok();
         }
 
         /// <summary>
@@ -84,13 +84,13 @@ namespace AppLidra.Server.Controllers
         [AllowAnonymous]
         public IActionResult GetAllUsers()
         {
-            return Ok(_store.Users);
+            return this.Ok(this._store.Users);
         }
 
         private string GenerateJwtToken(User user)
         {
             JwtSecurityTokenHandler tokenHandler = new ();
-            string? temp = _configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret not found in configuration.");
+            string? temp = this._configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret not found in configuration.");
             byte[] key = Encoding.UTF8.GetBytes(temp);
             string email = user.Email ?? string.Empty;
             string userId = user.Id.ToString(CultureInfo.InvariantCulture) ?? string.Empty;

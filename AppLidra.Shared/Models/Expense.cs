@@ -26,12 +26,12 @@ namespace AppLidra.Shared.Models
         /// <exception cref="ArgumentException">Thrown when shares do not add up to 1.</exception>
         public Expense(int id, string name, double amount, DateTime date, int projectId, List<ExpenseShare> shares, string author)
         {
-            Id = id;
-            Author = author;
-            Name = name;
-            Amount = amount;
-            Date = date;
-            ProjectId = projectId;
+            this.Id = id;
+            this.Author = author;
+            this.Name = name;
+            this.Amount = amount;
+            this.Date = date;
+            this.ProjectId = projectId;
             double sharesCount = 0;
             if (shares is null)
             {
@@ -48,7 +48,7 @@ namespace AppLidra.Shared.Models
                 throw new ArgumentException("Shares do not add up to 1");
             }
 
-            Shares = shares;
+            this.Shares = shares;
         }
 
         /// <summary>
