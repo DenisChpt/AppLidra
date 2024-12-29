@@ -1,8 +1,10 @@
 ﻿//-----------------------------------------------------------------------
 // <copiright file="AuthController.cs">
-//      <author> Kamil.D Racim.Z Denis.C </author>
-// </copiright>
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
 //-----------------------------------------------------------------------
+
 using AppLidra.Server.Data;
 using AppLidra.Shared.Models;
 using Microsoft.AspNetCore.Authorization;

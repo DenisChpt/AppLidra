@@ -1,7 +1,8 @@
 ﻿//-----------------------------------------------------------------------
 // <copiright file="User.cs">
-//      <author> Kamil.D Racim.Z Denis.C </author>
-// </copiright>
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
 //-----------------------------------------------------------------------
 
 using System.ComponentModel.DataAnnotations;
