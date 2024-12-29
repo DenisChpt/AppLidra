@@ -13,13 +13,23 @@ public class JsonDataStore
     public List<User> Users { get; private set; } = [];
     public List<Expense> Expenses { get; private set; } = [];
 
+    private static readonly JsonSerializerOptions _deserializeOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private static readonly JsonSerializerOptions _serializeOptions = new()
+    {
+        WriteIndented = true
+    };
+
     public JsonDataStore(string filePath)
     {
         _filePath = filePath;
 
         if (!File.Exists(_filePath))
         {
-            SaveChanges(); // Crée un fichier JSON vide
+            SaveChanges();
         }
 
         LoadData();
@@ -29,8 +39,8 @@ public class JsonDataStore
     {
         lock (_lock)
         {
-            var json = File.ReadAllText(_filePath);
-            var data = JsonSerializer.Deserialize<JsonData>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            string json = File.ReadAllText(_filePath);
+            JsonData? data = JsonSerializer.Deserialize<JsonData>(json, _deserializeOptions);
 
             Projects = data?.Projects ?? [];
             Users = data?.Users ?? [];
@@ -42,14 +52,14 @@ public class JsonDataStore
     {
         lock (_lock)
         {
-            var data = new JsonData
+            JsonData data = new()
             {
                 Projects = Projects,
                 Users = Users,
                 Expenses = Expenses
             };
 
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(_filePath, JsonSerializer.Serialize(data, _serializeOptions));
         }
     }
 }

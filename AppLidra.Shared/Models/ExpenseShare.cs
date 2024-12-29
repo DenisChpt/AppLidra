@@ -7,8 +7,11 @@ public class ExpenseShare
 
     public ExpenseShare(string userName, double share)
     {
-        if(share < 0 || share > 1)
+        if (share is < 0 or > 1)
+        {
             throw new ArgumentException("share out of bounds.");
+        }
+
         UserName = userName;
         Share = share;
     }

@@ -1,15 +1,9 @@
 ﻿namespace AppLidra.Shared.Models
 {
-    public class CollaboratorModificationModel
+    public class CollaboratorModificationModel(int projectId, string collaboratorName)
     {
-        public int ProjectId { get; set; }
-        public string CollaboratorName { get; set; }
-
-        public CollaboratorModificationModel(int projectId, string collaboratorName)
-        {
-            ProjectId = projectId;
-            CollaboratorName = collaboratorName;
-        }
+        public int ProjectId { get; set; } = projectId;
+        public string CollaboratorName { get; set; } = collaboratorName;
     }
 
 }

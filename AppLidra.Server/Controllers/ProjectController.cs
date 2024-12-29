@@ -3,6 +3,7 @@ using AppLidra.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace AppLidra.Server.Controllers;
@@ -12,21 +13,22 @@ namespace AppLidra.Server.Controllers;
 [Authorize]
 public class ProjectController(JsonDataStore store) : ControllerBase
 {
-    private readonly JsonDataStore _store = store;
+    private readonly JsonDataStore _store = store ?? throw new ArgumentNullException(nameof(store));
 
     [HttpGet]
     public IActionResult GetAllProjects()
     {
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-        User user = _store.Users.Where(u => u.Id == userId).First();
-        List<Project> projects = _store.Projects.Where(p => p.OwnerUserId == userId || p.Collaborators.Contains(user.UserName)).ToList();
+        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+        User user = _store.Users.First(u => u.Id == userId);
+        string userName = user.UserName ?? string.Empty;
+        List<Project> projects = _store.Projects.Where(p => p.OwnerUserId == userId || p.Collaborators.Contains(userName)).ToList();
         return Ok(projects);
     }
 
     [HttpGet("is-owner/{projectId}")]
     public IActionResult IsOwner(int projectId)
     {
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
         bool res = _store.Projects.Exists(p => p.Id == projectId && p.OwnerUserId == userId);
         return Ok(res);
     }
@@ -34,8 +36,8 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     [HttpPost]
     public IActionResult CreateProject([FromBody] Project project)
     {
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-        User user = _store.Users.Where(u => u.Id == userId).First();
+        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+        User user = _store.Users.First(u => u.Id == userId);
         project.Id = _store.Projects.Count != 0 ? _store.Projects.Max(p => p.Id) + 1 : 1;
         project.OwnerUserId = userId;
         project.CreatedAt = DateTime.UtcNow;
@@ -51,11 +53,7 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     public IActionResult GetProjectById(int projectId)
     {
         Project? project = _store.Projects.FirstOrDefault(p => p.Id == projectId);
-        if (project == null)
-        {
-            return NotFound("Project not found");
-        }
-        return Ok(project);
+        return project == null ? NotFound("Project not found") : Ok(project);
     }
 
     [HttpDelete("{projectId}")]
@@ -67,8 +65,8 @@ public class ProjectController(JsonDataStore store) : ControllerBase
             return NotFound("Project not found");
         }
 
-        _store.Projects.Remove(project);
-        _store.Expenses.RemoveAll(e => e.ProjectId == projectId);
+        _ = _store.Projects.Remove(project);
+        _ = _store.Expenses.RemoveAll(e => e.ProjectId == projectId);
         _store.SaveChanges();
 
         return Ok("Project and associated expenses deleted successfully");
@@ -79,17 +77,29 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     {
         Project? project = _store.Projects.FirstOrDefault(p => p.Id == collabInfo.ProjectId);
         if (project == null)
+        {
             return NotFound("Project not found");
+        }
 
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+
+        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
         if (userId != project.OwnerUserId)
+        {
             return NotFound("User demanding is not the owner of the project");
+        }
+
 
         if (_store.Users.FirstOrDefault(u => u.UserName == collabInfo.CollaboratorName) == null)
+        {
             return NotFound("User not found");
+        }
+
 
         if (project.Collaborators.Contains(collabInfo.CollaboratorName))
+        {
             return BadRequest("Collaborator already exists in the project.");
+        }
+
 
         project.Collaborators.Add(collabInfo.CollaboratorName);
 
@@ -102,27 +112,42 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     {
         Project? project = _store.Projects.FirstOrDefault(p => p.Id == collabInfo.ProjectId);
         if (project == null)
+        {
             return NotFound("Project not found.");
+        }
 
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-        if(userId != project.OwnerUserId)
+
+        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+        if (userId != project.OwnerUserId)
+        {
             return NotFound("User demanding is not the owner of the project.");
+        }
+
 
         User? collaboratorToRemove = _store.Users.FirstOrDefault(u => u.UserName == collabInfo.CollaboratorName);
-        if ( collaboratorToRemove is null)
+        if (collaboratorToRemove is null)
+        {
             return NotFound("User not found.");
+        }
+
 
         if (collaboratorToRemove.Id == project.OwnerUserId)
+        {
             return NotFound("The project owner has to be a collabaorator.");
+        }
+
 
         if (!project.Collaborators.Contains(collabInfo.CollaboratorName))
+        {
             return BadRequest("Collaborator does not exists in the project.");
+        }
 
-        project.Collaborators.Remove(collabInfo.CollaboratorName);
+
+        _ = project.Collaborators.Remove(collabInfo.CollaboratorName);
         bool isShareHolder;
 
         // share out expense on remaining collaborators
-        _store.Expenses.RemoveAll(e => e.Id == collabInfo.ProjectId);
+        _ = _store.Expenses.RemoveAll(e => e.Id == collabInfo.ProjectId);
 
         List<Expense> expenses = _store.Expenses.Where(e => e.Id == collabInfo.ProjectId).ToList();
         double shareStock = 0;
@@ -143,7 +168,10 @@ public class ProjectController(JsonDataStore store) : ControllerBase
             if (isShareHolder)
             {
                 for (int j = 0; j < expenses[i].Shares.Count; j++)
+                {
                     expenses[i].Shares[j].Share += shareStock / expenses[i].Shares.Count;
+                }
+
             }
 
             _store.Expenses.Add(expenses[i]);
@@ -159,23 +187,35 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     {
         Project? project = _store.Projects.FirstOrDefault(p => p.Id == collabInfo.ProjectId);
         if (project == null)
+        {
             return NotFound("Project not found.");
+        }
+
 
         User? collaboratorToRemove = _store.Users.FirstOrDefault(u => u.UserName == collabInfo.CollaboratorName);
         if (collaboratorToRemove is null)
+        {
             return NotFound("User not found.");
+        }
+
 
         if (collaboratorToRemove.Id == project.OwnerUserId)
+        {
             return NotFound("The project owner has to be a collabaorator.");
+        }
+
 
         if (!project.Collaborators.Contains(collabInfo.CollaboratorName))
+        {
             return BadRequest("Collaborator does not exists in the project.");
+        }
 
-        project.Collaborators.Remove(collabInfo.CollaboratorName);
+
+        _ = project.Collaborators.Remove(collabInfo.CollaboratorName);
         bool isShareHolder;
 
         // share out expense on remaining collaborators
-        _store.Expenses.RemoveAll(e => e.Id == collabInfo.ProjectId);
+        _ = _store.Expenses.RemoveAll(e => e.Id == collabInfo.ProjectId);
 
         List<Expense> expenses = _store.Expenses.Where(e => e.Id == collabInfo.ProjectId).ToList();
         double shareStock = 0;
@@ -196,7 +236,10 @@ public class ProjectController(JsonDataStore store) : ControllerBase
             if (isShareHolder)
             {
                 for (int j = 0; j < expenses[i].Shares.Count; j++)
+                {
                     expenses[i].Shares[j].Share += shareStock / expenses[i].Shares.Count;
+                }
+
             }
 
             _store.Expenses.Add(expenses[i]);
@@ -212,7 +255,10 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     {
         Project? project = _store.Projects.FirstOrDefault(p => p.Id == newProjectInfos.ProjectId);
         if (project == null)
+        {
             return NotFound("Project not found");
+        }
+
 
         project.Name = newProjectInfos.NewName;
 
@@ -231,7 +277,7 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     [HttpGet("collaborators/{projectId}")]
     public IActionResult GetCollaborators(int projectId)
     {
-        List<string> collaborators = store.Projects.Where(p => p.Id == projectId).First().Collaborators;
+        List<string> collaborators = store.Projects.First(p => p.Id == projectId).Collaborators;
         return Ok(collaborators);
     }
 
@@ -240,17 +286,23 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     {
         Project? project = _store.Projects.FirstOrDefault(p => p.Id == projectId);
         if (project == null)
+        {
             return NotFound("Project not found");
+        }
 
-        var expenses = _store.Expenses.Where(e => e.ProjectId == projectId).ToList();
+
+        List<Expense> expenses = _store.Expenses.Where(e => e.ProjectId == projectId).ToList();
         double totalAmount = expenses.Sum(e => e.Amount);
 
-        var distribution = new Distribution();
+        Distribution distribution = new();
 
         if (totalAmount == 0)
+        {
             return Ok(distribution);
+        }
 
-        var groupedExpenses = expenses
+
+        List<DistributionPart> groupedExpenses = expenses
             .GroupBy(e => e.Author)
             .Select(group => new DistributionPart(
                 name: group.Key,
@@ -268,29 +320,35 @@ public class ProjectController(JsonDataStore store) : ControllerBase
     {
         Project? project = _store.Projects.FirstOrDefault(p => p.Id == projectId);
         if (project == null)
+        {
             return NotFound("Project not found");
+        }
+
 
         List<Expense> expenses = _store.Expenses.Where(e => e.ProjectId == projectId).ToList();
 
-        var balances = new Dictionary<string, double>();
+        Dictionary<string, double> balances = [];
 
         // Credits (payed amounts)
-        foreach (var expense in expenses)
+        foreach (Expense expense in expenses)
         {
             if (!balances.ContainsKey(expense.Author))
+            {
                 balances[expense.Author] = 0;
+            }
 
             balances[expense.Author] += expense.Amount;
         }
 
         // Debits (dued amounts according to shares)
-        foreach (var expense in expenses)
+        foreach (Expense expense in expenses)
         {
-            foreach (var share in expense.Shares)
+            foreach (ExpenseShare share in expense.Shares)
             {
                 if (!balances.ContainsKey(share.UserName))
+                {
                     balances[share.UserName] = 0;
-
+                }
                 balances[share.UserName] -= expense.Amount * share.Share;
             }
         }

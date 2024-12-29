@@ -1,15 +1,9 @@
 ﻿namespace AppLidra.Shared.Models
 {
-    public class ProjectRenameModel
+    public class ProjectRenameModel(int projectId, string newName)
     {
-        public int ProjectId { get; set; }
-        public string NewName { get; set; }
-
-        public ProjectRenameModel ( int projectId, string newName)
-        {
-            ProjectId = projectId;
-            NewName = newName;
-        }
+        public int ProjectId { get; set; } = projectId;
+        public string NewName { get; set; } = newName;
     }
 
 }

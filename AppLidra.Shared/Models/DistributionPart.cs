@@ -1,13 +1,7 @@
 ﻿namespace AppLidra.Shared.Models;
 
-public class DistributionPart
+public class DistributionPart(string name, double share)
 {
-    public string Name { get; set; }
-    public double Share { get; set; }
-
-    public DistributionPart(string name, double share)
-    {
-        Name = name;
-        Share = share;
-    }
+    public string Name { get; set; } = name;
+    public double Share { get; set; } = share;
 }

@@ -10,7 +10,7 @@ public class Expense
     public int ProjectId { get; set; }
     public List<ExpenseShare> Shares { get; set; } = [];
 
-    public Expense (int id,  string name, double amount, DateTime date, int projectId, List<ExpenseShare> shares, string author)
+    public Expense(int id, string name, double amount, DateTime date, int projectId, List<ExpenseShare> shares, string author)
     {
         Id = id;
         Author = author;
@@ -24,7 +24,10 @@ public class Expense
             sharesCount += shares[i].Share;
         }
         if (sharesCount != 1)
+        {
             throw new ArgumentException("Shares do not add up to 1");
+        }
+
         Shares = shares;
     }
 }

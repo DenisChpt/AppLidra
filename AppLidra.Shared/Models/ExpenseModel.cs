@@ -20,7 +20,10 @@ public class ExpenseModel
             sharesCount += shares[i].Share;
         }
         if (sharesCount != 1)
+        {
             throw new ArgumentException("Shares do not add up to 1");
+        }
+
         Shares = shares;
     }
 }

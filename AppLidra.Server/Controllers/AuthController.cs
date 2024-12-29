@@ -3,6 +3,7 @@ using AppLidra.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -20,13 +21,13 @@ public class AuthController(JsonDataStore store, IConfiguration configuration) :
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginModel logs)
     {
-        var existingUser = _store.Users.FirstOrDefault(u => u.Email == logs.Email && u.Password == logs.Password);
+        User? existingUser = _store.Users.FirstOrDefault(u => u.Email == logs.Email && u.Password == logs.Password);
         if (existingUser == null)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        var token = GenerateJwtToken(existingUser);
+        string token = GenerateJwtToken(existingUser);
         return Ok(new { Token = token });
     }
 
@@ -59,19 +60,21 @@ public class AuthController(JsonDataStore store, IConfiguration configuration) :
     private string GenerateJwtToken(User user)
     {
         JwtSecurityTokenHandler tokenHandler = new();
-        string? temp = _configuration["Jwt:Secret"] ?? throw new Exception("Jwt:Secret not found in configuration.");
+        string? temp = _configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret not found in configuration.");
         byte[] key = Encoding.UTF8.GetBytes(temp);
+        string email = user.Email ?? string.Empty;
+        string userId = user.Id.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
         SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = new ClaimsIdentity(
             [
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.NameIdentifier, userId),
+            new Claim(ClaimTypes.Email, email)
         ]),
             Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
+        SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
 }
