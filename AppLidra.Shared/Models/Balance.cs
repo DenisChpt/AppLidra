@@ -1,6 +1,7 @@
-﻿namespace AppLidra.Shared.Models;
-
-public class Balance
+﻿namespace AppLidra.Shared.Models
 {
-    public List<BalancePart> BalanceParts { get; set; } = [];
+    public class Balance
+    {
+        public List<BalancePart> BalanceParts { get; set; } = [];
+    }
 }

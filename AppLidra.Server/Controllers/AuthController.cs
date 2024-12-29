@@ -8,73 +8,74 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace AppLidra.Server.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController(JsonDataStore store, IConfiguration configuration) : ControllerBase
+namespace AppLidra.Server.Controllers
 {
-    private readonly JsonDataStore _store = store;
-    private readonly IConfiguration _configuration = configuration;
-
-
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginModel logs)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController(JsonDataStore store, IConfiguration configuration) : ControllerBase
     {
-        User? existingUser = _store.Users.FirstOrDefault(u => u.Email == logs.Email && u.Password == logs.Password);
-        if (existingUser == null)
+        private readonly JsonDataStore _store = store;
+        private readonly IConfiguration _configuration = configuration;
+
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginModel logs)
         {
-            return Unauthorized("Invalid credentials");
+            User? existingUser = _store.Users.FirstOrDefault(u => u.Email == logs.Email && u.Password == logs.Password);
+            if (existingUser == null)
+            {
+                return Unauthorized("Invalid credentials");
+            }
+
+            string token = GenerateJwtToken(existingUser);
+            return Ok(new { Token = token });
         }
 
-        string token = GenerateJwtToken(existingUser);
-        return Ok(new { Token = token });
-    }
-
-    [HttpPost("register")]
-    public IActionResult Register([FromBody] User user)
-    {
-        if (_store.Users.Any(u => u.Email == user.Email))
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] User user)
         {
-            return BadRequest("User already exists.");
+            if (_store.Users.Any(u => u.Email == user.Email))
+            {
+                return BadRequest("User already exists.");
+            }
+            else if (_store.Users.Any(u => u.UserName == user.UserName))
+            {
+                return BadRequest("User Name already used.");
+            }
+
+            user.Id = _store.Users.Count != 0 ? _store.Users.Max(u => u.Id) + 1 : 1;
+            _store.Users.Add(user);
+            _store.SaveChanges();
+
+            return Ok();
         }
-        else if (_store.Users.Any(u => u.UserName == user.UserName))
+
+        [HttpGet("all-users")]
+        [AllowAnonymous]
+        public IActionResult GetAllUsers()
         {
-            return BadRequest("User Name already used.");
+            return Ok(_store.Users);
         }
 
-        user.Id = _store.Users.Count != 0 ? _store.Users.Max(u => u.Id) + 1 : 1;
-        _store.Users.Add(user);
-        _store.SaveChanges();
-
-        return Ok();
-    }
-
-    [HttpGet("all-users")]
-    [AllowAnonymous]
-    public IActionResult GetAllUsers()
-    {
-        return Ok(_store.Users);
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        JwtSecurityTokenHandler tokenHandler = new();
-        string? temp = _configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret not found in configuration.");
-        byte[] key = Encoding.UTF8.GetBytes(temp);
-        string email = user.Email ?? string.Empty;
-        string userId = user.Id.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
-        SecurityTokenDescriptor tokenDescriptor = new()
+        private string GenerateJwtToken(User user)
         {
-            Subject = new ClaimsIdentity(
-            [
-            new Claim(ClaimTypes.NameIdentifier, userId),
-            new Claim(ClaimTypes.Email, email)
-        ]),
-            Expires = DateTime.UtcNow.AddDays(7),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-        };
-        SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+            JwtSecurityTokenHandler tokenHandler = new();
+            string? temp = _configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret not found in configuration.");
+            byte[] key = Encoding.UTF8.GetBytes(temp);
+            string email = user.Email ?? string.Empty;
+            string userId = user.Id.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+            SecurityTokenDescriptor tokenDescriptor = new()
+            {
+                Subject = new ClaimsIdentity(
+                [
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Email, email)
+            ]),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            };
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
     }
 }

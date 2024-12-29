@@ -1,6 +1,7 @@
-﻿namespace AppLidra.Shared.Models;
-
-public class Distribution
+﻿namespace AppLidra.Shared.Models
 {
-    public List<DistributionPart> DistributionParts { get; set; } = [];
+    public class Distribution
+    {
+        public List<DistributionPart> DistributionParts { get; set; } = [];
+    }
 }

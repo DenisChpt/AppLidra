@@ -1,6 +1,7 @@
-﻿namespace AppLidra.Shared.Models;
-
-public class AuthResponse
+﻿namespace AppLidra.Shared.Models
 {
-    public string? Token { get; set; }
+    public class AuthResponse
+    {
+        public string? Token { get; set; }
+    }
 }

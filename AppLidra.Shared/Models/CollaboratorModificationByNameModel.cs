@@ -5,5 +5,4 @@
         public int ProjectId { get; set; } = projectId;
         public string CollaboratorName { get; set; } = collaboratorName;
     }
-
 }

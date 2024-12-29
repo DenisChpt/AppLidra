@@ -1,6 +1,7 @@
-﻿namespace AppLidra.Shared.Models;
-
-public class UserResponse(string userName)
+﻿namespace AppLidra.Shared.Models
 {
-    public string UserName { get; set; } = userName;
+    public class UserResponse(string userName)
+    {
+        public string UserName { get; set; } = userName;
+    }
 }

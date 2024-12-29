@@ -2,64 +2,66 @@
 using AppLidra.Shared.Services;
 using System.Text.Json;
 
-namespace AppLidra.Server.Data;
-
-public class JsonDataStore
+namespace AppLidra.Server.Data
 {
-    private readonly string _filePath;
-    private readonly object _lock = new();
-
-    public List<Project> Projects { get; private set; } = [];
-    public List<User> Users { get; private set; } = [];
-    public List<Expense> Expenses { get; private set; } = [];
-
-    private static readonly JsonSerializerOptions _deserializeOptions = new()
+    public class JsonDataStore
     {
-        PropertyNameCaseInsensitive = true
-    };
+        private readonly string _filePath;
+        private readonly object _lock = new();
 
-    private static readonly JsonSerializerOptions _serializeOptions = new()
-    {
-        WriteIndented = true
-    };
+        public List<Project> Projects { get; private set; } = [];
+        public List<User> Users { get; private set; } = [];
+        public List<Expense> Expenses { get; private set; } = [];
 
-    public JsonDataStore(string filePath)
-    {
-        _filePath = filePath;
-
-        if (!File.Exists(_filePath))
+        private static readonly JsonSerializerOptions _deserializeOptions = new()
         {
-            SaveChanges();
-        }
+            PropertyNameCaseInsensitive = true
+        };
 
-        LoadData();
-    }
-
-    private void LoadData()
-    {
-        lock (_lock)
+        private static readonly JsonSerializerOptions _serializeOptions = new()
         {
-            string json = File.ReadAllText(_filePath);
-            JsonData? data = JsonSerializer.Deserialize<JsonData>(json, _deserializeOptions);
+            WriteIndented = true
+        };
 
-            Projects = data?.Projects ?? [];
-            Users = data?.Users ?? [];
-            Expenses = data?.Expenses ?? [];
-        }
-    }
-
-    public void SaveChanges()
-    {
-        lock (_lock)
+        public JsonDataStore(string filePath)
         {
-            JsonData data = new()
+            _filePath = filePath;
+
+            if (!File.Exists(_filePath))
             {
-                Projects = Projects,
-                Users = Users,
-                Expenses = Expenses
-            };
+                SaveChanges();
+            }
 
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(data, _serializeOptions));
+            LoadData();
+        }
+
+        private void LoadData()
+        {
+            lock (_lock)
+            {
+                string json = File.ReadAllText(_filePath);
+                JsonData? data = JsonSerializer.Deserialize<JsonData>(json, _deserializeOptions);
+
+                Projects = data?.Projects ?? [];
+                Users = data?.Users ?? [];
+                Expenses = data?.Expenses ?? [];
+            }
+        }
+
+        public void SaveChanges()
+        {
+            lock (_lock)
+            {
+                JsonData data = new()
+                {
+                    Projects = Projects,
+                    Users = Users,
+                    Expenses = Expenses
+                };
+
+                File.WriteAllText(_filePath, JsonSerializer.Serialize(data, _serializeOptions));
+            }
         }
     }
 }
+
