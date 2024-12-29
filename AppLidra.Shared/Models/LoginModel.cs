@@ -7,10 +7,19 @@
 
 namespace AppLidra.Shared.Models
 {
+    /// <summary>
+    /// Represents the login model containing email and password.
+    /// </summary>
     public class LoginModel
     {
+        /// <summary>
+        /// Gets or sets the email.
+        /// </summary>
         public string? Email { get; set; }
+
+        /// <summary>
+        /// Gets or sets the password.
+        /// </summary>
         public string? Password { get; set; }
     }
-
 }

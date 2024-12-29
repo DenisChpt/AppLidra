@@ -5,36 +5,38 @@
 // <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
 //-----------------------------------------------------------------------
 
-using AppLidra.Shared.Models;
-using AppLidra.Shared.Services;
-using System.Text.Json;
-
 namespace AppLidra.Server.Data
 {
+    using System.Text.Json;
+    using AppLidra.Shared.Models;
+
+    /// <summary>
+    /// Represents a data store that handles JSON serialization and deserialization for projects, users, and expenses.
+    /// </summary>
     public class JsonDataStore
     {
+        private static readonly JsonSerializerOptions _deserializeOptions = new ()
+        {
+            PropertyNameCaseInsensitive = true,
+        };
+
+        private static readonly JsonSerializerOptions _serializeOptions = new ()
+        {
+            WriteIndented = true,
+        };
+
         private readonly string _filePath;
-        private readonly object _lock = new();
+        private readonly object _lock = new ();
 
-        public List<Project> Projects { get; private set; } = [];
-        public List<User> Users { get; private set; } = [];
-        public List<Expense> Expenses { get; private set; } = [];
-
-        private static readonly JsonSerializerOptions _deserializeOptions = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
-
-        private static readonly JsonSerializerOptions _serializeOptions = new()
-        {
-            WriteIndented = true
-        };
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonDataStore"/> class.
+        /// </summary>
+        /// <param name="filePath">The file path to the JSON data store.</param>
         public JsonDataStore(string filePath)
         {
-            _filePath = filePath;
+            this._filePath = filePath;
 
-            if (!File.Exists(_filePath))
+            if (!File.Exists(this._filePath))
             {
                 SaveChanges();
             }
@@ -42,11 +44,39 @@ namespace AppLidra.Server.Data
             LoadData();
         }
 
+        /// <summary>
+        /// Gets the list of projects.
+        /// </summary>
+        public List<Project> Projects { get; private set; } = [];
+
+        /// <summary>
+        /// Gets the list of users.
+        /// </summary>
+        public List<User> Users { get; private set; } = [];
+
+        /// <summary>
+        /// Gets the list of expenses.
+        /// </summary>
+        public List<Expense> Expenses { get; private set; } = [];
+
+        /// <summary>
+        /// Saves the changes to the JSON data store.
+        /// </summary>
+        public void SaveChanges()
+        {
+            lock (this._lock)
+            {
+                JsonData data = new (Projects, Users, Expenses);
+
+                File.WriteAllText(this._filePath, JsonSerializer.Serialize(data, _serializeOptions));
+            }
+        }
+
         private void LoadData()
         {
-            lock (_lock)
+            lock (this._lock)
             {
-                string json = File.ReadAllText(_filePath);
+                string json = File.ReadAllText(this._filePath);
                 JsonData? data = JsonSerializer.Deserialize<JsonData>(json, _deserializeOptions);
 
                 Projects = data?.Projects ?? [];
@@ -54,21 +84,5 @@ namespace AppLidra.Server.Data
                 Expenses = data?.Expenses ?? [];
             }
         }
-
-        public void SaveChanges()
-        {
-            lock (_lock)
-            {
-                JsonData data = new()
-                {
-                    Projects = Projects,
-                    Users = Users,
-                    Expenses = Expenses
-                };
-
-                File.WriteAllText(_filePath, JsonSerializer.Serialize(data, _serializeOptions));
-            }
-        }
     }
 }
-

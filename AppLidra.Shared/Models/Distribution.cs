@@ -7,8 +7,14 @@
 
 namespace AppLidra.Shared.Models
 {
+    /// <summary>
+    /// Represents a distribution containing multiple distribution parts.
+    /// </summary>
     public class Distribution
     {
+        /// <summary>
+        /// Gets or sets the distribution parts.
+        /// </summary>
         public List<DistributionPart> DistributionParts { get; set; } = [];
     }
 }

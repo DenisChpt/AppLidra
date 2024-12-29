@@ -5,15 +5,19 @@
 // <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
 //-----------------------------------------------------------------------
 
-using AppLidra.Server.Data;
-using AppLidra.Shared.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
-using System.Security.Claims;
-
 namespace AppLidra.Server.Controllers
 {
+    using System.Globalization;
+    using System.Security.Claims;
+    using AppLidra.Server.Data;
+    using AppLidra.Shared.Models;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UserController"/> class.
+    /// </summary>
+    /// <param name="store">The data store.</param>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
@@ -21,6 +25,10 @@ namespace AppLidra.Server.Controllers
     {
         private readonly JsonDataStore _store = store;
 
+        /// <summary>
+        /// Gets the user ID of the current user.
+        /// </summary>
+        /// <returns>The user ID of the current user.</returns>
         [HttpGet("id")]
         public IActionResult GetId()
         {
@@ -28,15 +36,24 @@ namespace AppLidra.Server.Controllers
             return Ok(userId);
         }
 
+        /// <summary>
+        /// Gets the user name of the current user.
+        /// </summary>
+        /// <returns>The user name of the current user.</returns>
         [HttpGet("userName")]
         public IActionResult GetUserName()
         {
             int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
-            User? user = _store.Users.First(p => p.Id == userId);
+            User? user = this._store.Users.First(p => p.Id == userId);
             string userName = user.UserName ?? string.Empty;
             return user is not null ? Ok(new UserResponse(userName)) : (IActionResult)Ok(null);
         }
 
+        /// <summary>
+        /// Gets the user name by user ID.
+        /// </summary>
+        /// <param name="id">The user ID.</param>
+        /// <returns>The user name.</returns>
         [HttpGet("userName/{id}")]
         public IActionResult GetUserName(int id)
         {
@@ -44,6 +61,11 @@ namespace AppLidra.Server.Controllers
             return user is not null ? Ok(user.UserName) : (IActionResult)Ok(null);
         }
 
+        /// <summary>
+        /// Gets the user ID by user name.
+        /// </summary>
+        /// <param name="userName">The user name.</param>
+        /// <returns>The user ID.</returns>
         [HttpGet("id/{userName}")]
         public IActionResult GetId(string userName)
         {

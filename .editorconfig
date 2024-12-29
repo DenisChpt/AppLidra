@@ -1,0 +1,39 @@
+root = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# Disable C# header conventions
+dotnet_diagnostic.SA1633.severity = none
+
+# Opening square brackets could be preceded by a space.
+dotnet_diagnostic.SA1010.severity = none
+
+# Closing square brackets could be followed by a space.
+dotnet_diagnostic.SA1011.severity = none
+
+# Prefix local calls with 'this.' is not required.
+dotnet_diagnostic.SA1101.severity = none
+
+# Field names could begin with an underscore
+dotnet_diagnostic.SA1309.severity = none
+
+dotnet_diagnostic.SA1009.severity = none
+dotnet_diagnostic.CA2227.severity = none
+
+# DotNet conventions
+dotnet_style_qualification_for_field = true:suggestion
+dotnet_style_prefer_inferred_tuple_names = true:warning
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:warning
+
+dotnet_diagnostic.CA2000.severity = warning
+dotnet_diagnostic.CA2100.severity = error
+
+[*.{csproj,sln}]
+indent_size = 2
+
+[Program.cs]
+
+# Using directive could be placed outside of namespace in Program.cs.
+dotnet_diagnostic.SA1200.severity = none

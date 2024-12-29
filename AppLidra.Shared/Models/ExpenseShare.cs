@@ -7,11 +7,16 @@
 
 namespace AppLidra.Shared.Models
 {
+    /// <summary>
+    /// Represents a share of an expense for a user.
+    /// </summary>
     public class ExpenseShare
     {
-        public string UserName { get; set; }
-        public double Share { get; set; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpenseShare"/> class.
+        /// </summary>
+        /// <param name="userName">The name of the user.</param>
+        /// <param name="share">The share of the expense.</param>
         public ExpenseShare(string userName, double share)
         {
             if (share is < 0 or > 1)
@@ -22,5 +27,15 @@ namespace AppLidra.Shared.Models
             UserName = userName;
             Share = share;
         }
+
+        /// <summary>
+        /// Gets or sets the user name.
+        /// </summary>
+        public string UserName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the share of the expense.
+        /// </summary>
+        public double Share { get; set; }
     }
 }
