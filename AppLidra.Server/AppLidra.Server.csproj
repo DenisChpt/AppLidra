@@ -18,6 +18,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+    	<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+    	<ProjectReference Include="..\AppLidra.Client\AppLidra.Client.csproj" />
+    	<ProjectReference Include="..\AppLidra.Shared\AppLidra.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\AppLidra.Shared\AppLidra.Shared.csproj" />
 	</ItemGroup>
 

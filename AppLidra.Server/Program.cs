@@ -12,6 +12,15 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Ajoutez ces lignes pour servir le client Blazor
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// Vos services existants...
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 // Add services to the container.
 builder.Services.AddControllers();
 
@@ -54,6 +63,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -62,14 +72,28 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
 
 app.UseCors("AllowAll");
 
-app.UseHttpsRedirection();
+// Commentez temporairement la redirection HTTPS pour tester
+// app.UseHttpsRedirection();
+
+// Ajoutez ces lignes pour servir le client Blazor
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Modifiez le mapping des endpoints
+app.MapRazorPages();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();
