@@ -30,7 +30,7 @@ else
                 <label>Collaborator:</label>
                 <select @bind="share.UserName">
                     <option value="">-- Select Collaborator --</option>
-                    @foreach (var collaborator in collaborators)
+                    @foreach (var collaborator in GetAvailableCollaborators(share))
                     {
                         <option value="@collaborator">@collaborator</option>
                     }
@@ -40,6 +40,7 @@ else
                 <button @onclick="(() => RemoveShare(share))">Remove</button>
             </div>
         }
+
     </div>
     <button @onclick="AddShare">Add Share</button>
 
@@ -110,6 +111,16 @@ else
     private async Task Cancel()
     {
         await GoToExpenses.InvokeAsync();
+    }
+
+    private List<string> GetAvailableCollaborators(ExpenseShare currentShare)
+    {
+        var selectedCollaborators = expenseShares
+            .Where(share => share != currentShare && !string.IsNullOrEmpty(share.UserName))
+            .Select(share => share.UserName)
+            .ToList();
+
+        return collaborators.Where(c => !selectedCollaborators.Contains(c)).ToList();
     }
 }
 
