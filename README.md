@@ -17,6 +17,7 @@ A web app that offers users the possibility to share and manage expenses with fr
 - For now, it is local, but everything is set up to launch it if needed.
 
 <ins>**Installation guide:**</ins>
+- The app is unfortunately not deployed so you will have to run it by yourself :(
 - Clone this repository on your machine ;
 - Open the solution fie AppLidra.sln in Visual Studio 2022 to the latest version(it was developped and tested on 17.10.5 so if you have a problem, try going back to this version).
 - There are 3 projects in this solution:
