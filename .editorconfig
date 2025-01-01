@@ -33,6 +33,9 @@ dotnet_diagnostic.SA1516.severity = none
 # Disable the rule that requires a space after the keyword "new" (SA1000) because it bugs
 dotnet_diagnostic.SA1000.severity = none
 
+# Disable the rule that detects whitespace problems (SA1028) because it bugs
+dotnet_diagnostic.SA1028.severity = none
+
 # .NET coding conventions
 
 # Suggest using 'this.' when referring to fields (qualification for field)
