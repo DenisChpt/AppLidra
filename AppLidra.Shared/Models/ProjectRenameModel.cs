@@ -1,15 +1,27 @@
-﻿namespace AppLidra.Shared.Models
+﻿//-----------------------------------------------------------------------
+// <copiright file="ProjectRenameModel.cs">
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
+//-----------------------------------------------------------------------
+
+namespace AppLidra.Shared.Models
 {
-    public class ProjectRenameModel
+    /// <summary>
+    /// Represents a model for renaming a project.
+    /// </summary>
+    /// <param name="projectId">The ID of the project.</param>
+    /// <param name="newName">The new name of the project.</param>
+    public class ProjectRenameModel(int projectId, string newName)
     {
-        public int ProjectId { get; set; }
-        public string NewName { get; set; }
+        /// <summary>
+        /// Gets or sets the project ID.
+        /// </summary>
+        public int ProjectId { get; set; } = projectId;
 
-        public ProjectRenameModel ( int projectId, string newName)
-        {
-            ProjectId = projectId;
-            NewName = newName;
-        }
+        /// <summary>
+        /// Gets or sets the new name of the project.
+        /// </summary>
+        public string NewName { get; set; } = newName;
     }
-
 }

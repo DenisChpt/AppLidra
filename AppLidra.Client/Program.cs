@@ -1,5 +1,11 @@
+//-----------------------------------------------------------------------
+// <copiright file="Program.cs">
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
+//-----------------------------------------------------------------------
+
 using AppLidra.Client;
-using AppLidra.Client.Services;
 using AppLidra.Client.Handlers;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,6 +18,4 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddAuthorizationHandler();
 builder.Services.AddBlazoredLocalStorage();
 
-
-
-await builder.Build().RunAsync();
+await builder.Build().RunAsync().ConfigureAwait(false);

@@ -1,123 +1,196 @@
-﻿using AppLidra.Server.Data;
-using AppLidra.Shared.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿//-----------------------------------------------------------------------
+// <copiright file="ExpenseController.cs">
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
+//-----------------------------------------------------------------------
 
-namespace AppLidra.Server.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class ExpenseController(JsonDataStore store) : ControllerBase
+namespace AppLidra.Server.Controllers
 {
-    JsonDataStore _store = store;
+    using System.Globalization;
+    using System.Security.Claims;
+    using AppLidra.Server.Data;
+    using AppLidra.Shared.Models;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
 
-    [HttpGet("{expenseId}")]
-    public IActionResult GetExpenses(int expenseId)
+    /// <summary>
+    /// Controller for managing expenses.
+    /// </summary>
+    /// <param name="store">The data store for expenses.</param>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class ExpenseController(JsonDataStore store) : ControllerBase
     {
-        Expense expenses = _store.Expenses.Where(e => e.Id == expenseId).First();
-        return Ok(expenses);
-    }
+        private readonly JsonDataStore _store = store;
 
-    [HttpPost]
-    public IActionResult AddExpense([FromBody] ExpenseModel expenseModel)
-    {
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
-
-        User? user = _store.Users.FirstOrDefault(u => u.Id == userId);
-        if (user == null)
-            return NotFound("User not found");
-
-        Project? project = _store.Projects.FirstOrDefault(p => p.Id == expenseModel.ProjectId);
-        if (project == null)
-            return NotFound("Project not found");
-
-        bool hasRights = project.Collaborators.Contains(user.UserName);
-
-        if (!hasRights)
-            return NotFound("User not a collaborator");
-
-        for (int i = 0; i < expenseModel.Shares.Count; i++)
+        /// <summary>
+        /// Retrieves the expense with the specified ID.
+        /// </summary>
+        /// <param name="expenseId">The ID of the expense to retrieve.</param>
+        /// <returns>The expense with the specified ID.</returns>
+        [HttpGet("{expenseId}")]
+        public IActionResult GetExpenses(int expenseId)
         {
-            User? shareHolder = _store.Users.FirstOrDefault(u => u.Id == userId);
-            if (shareHolder == null)
-                return NotFound("ShareHolder not found");
-
-            bool isCollaborator = project.Collaborators.Contains(shareHolder.UserName);
-            if (!isCollaborator)
-                return NotFound("ShareHolder is not a collaborator");
+            Expense expenses = this._store.Expenses.First(e => e.Id == expenseId);
+            return this.Ok(expenses);
         }
 
-        int id = _store.Expenses.Count != 0 ? _store.Expenses.Max(e => e.Id) + 1 : 1;
-        Expense expense = new(id, expenseModel.Name, expenseModel.Amount, expenseModel.Date, expenseModel.ProjectId, expenseModel.Shares, user.UserName);
+        /// <summary>
+        /// Adds a new expense.
+        /// </summary>
+        /// <param name="expenseModel">The model of the expense to add.</param>
+        /// <returns>The added expense.</returns>
+        [HttpPost]
+        public IActionResult AddExpense([FromBody] ExpenseModel expenseModel)
+        {
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
 
-        _store.Expenses.Add(expense);
-        _store.SaveChanges();
+            User? user = this._store.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return this.NotFound("User not found");
+            }
 
-        return Ok(expense);
-    }
+            Project? project = this._store.Projects.FirstOrDefault(p => p.Id == expenseModel.ProjectId);
+            if (project == null)
+            {
+                return this.NotFound("Project not found");
+            }
 
-    [HttpPut("{expenseId}")]
-    public IActionResult UpdateExpense(int expenseId, [FromBody] Expense updatedExpense)
-    {
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            string userName = user.UserName ?? string.Empty;
+            bool hasRights = project.Collaborators.Contains(userName);
 
-        User? user = _store.Users.FirstOrDefault(u => u.Id == userId);
-        if (user == null)
-            return NotFound("User not found");
+            if (!hasRights)
+            {
+                return this.NotFound("User not a collaborator");
+            }
 
-        Expense? expense = _store.Expenses.FirstOrDefault(e => e.Id == expenseId);
-        if (expense == null)
-            return NotFound("Expense not found");
+            if ((expenseModel is null) || (expenseModel.Shares is null))
+            {
+                return this.BadRequest("Invalid expense model");
+            }
 
-        Project? project = _store.Projects.FirstOrDefault(p => p.Id == expense.ProjectId);
-        if (project == null)
-            return NotFound("Project not found");
+            for (int i = 0; i < expenseModel.Shares.Count; i++)
+            {
+                User? shareHolder = this._store.Users.FirstOrDefault(u => u.Id == userId);
+                if (shareHolder == null)
+                {
+                    return this.NotFound("ShareHolder not found");
+                }
 
-        bool hasRights = project.Collaborators.Contains(user.UserName);
+                string shareHolderName = shareHolder.UserName ?? string.Empty;
+                bool isCollaborator = project.Collaborators.Contains(shareHolderName);
+                if (!isCollaborator)
+                {
+                    return this.NotFound("ShareHolder is not a collaborator");
+                }
+            }
 
-        if (!hasRights)
-            return NotFound("User not a collaborator");
+            int id = this._store.Expenses.Count != 0 ? this._store.Expenses.Max(e => e.Id) + 1 : 1;
+            Expense expense = new (id, expenseModel.Name, expenseModel.Amount, expenseModel.Date, expenseModel.ProjectId, expenseModel.Shares, userName);
 
-        expense.Name = updatedExpense.Name;
-        expense.Author = updatedExpense.Author;
-        expense.Amount = updatedExpense.Amount;
-        expense.Date = updatedExpense.Date;
-        expense.Shares = updatedExpense.Shares;
+            this._store.Expenses.Add(expense);
+            this._store.SaveChanges();
 
-        _store.SaveChanges();
+            return this.Ok(expense);
+        }
 
-        return Ok(expense);
-    }
+        /// <summary>
+        /// Updates an existing expense.
+        /// </summary>
+        /// <param name="expenseId">The ID of the expense to update.</param>
+        /// <param name="updatedExpense">The updated expense details.</param>
+        /// <returns>The updated expense.</returns>
+        [HttpPut("{expenseId}")]
+        public IActionResult UpdateExpense(int expenseId, [FromBody] Expense updatedExpense)
+        {
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
 
-    [HttpDelete("{expenseId}")]
-    public IActionResult DeleteExpense(int expenseId)
-    {
-        int userId = int.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            User? user = this._store.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return this.NotFound("User not found");
+            }
 
-        User? user = _store.Users.FirstOrDefault(u => u.Id == userId);
-        if (user == null)
-            return NotFound("User not found");
+            Expense? expense = this._store.Expenses.FirstOrDefault(e => e.Id == expenseId);
+            if (expense == null)
+            {
+                return this.NotFound("Expense not found");
+            }
 
-        Expense? expense = _store.Expenses.FirstOrDefault(e => e.Id == expenseId);
-        if (expense == null)
-            return NotFound("Expense not found");
+            Project? project = this._store.Projects.FirstOrDefault(p => p.Id == expense.ProjectId);
+            if (project == null)
+            {
+                return this.NotFound("Project not found");
+            }
 
-        Project? project = _store.Projects.FirstOrDefault(p => p.Id == expense.ProjectId);
-        if (project == null)
-            return NotFound("Project not found");
+            string userName = user.UserName ?? string.Empty;
+            bool hasRights = project.Collaborators.Contains(userName);
 
-        bool hasRights = project.Collaborators.Contains(user.UserName);
+            if (!hasRights)
+            {
+                return this.NotFound("User not a collaborator");
+            }
 
-        if (!hasRights)
-            return NotFound("User not a collaborator");
+            if (updatedExpense is null)
+            {
+                return this.BadRequest("Invalid expense model");
+            }
 
+            expense.Name = updatedExpense.Name;
+            expense.Author = updatedExpense.Author;
+            expense.Amount = updatedExpense.Amount;
+            expense.Date = updatedExpense.Date;
+            expense.Shares = updatedExpense.Shares;
 
-        _store.Expenses.Remove(expense);
+            this._store.SaveChanges();
 
-        _store.SaveChanges();
+            return this.Ok(expense);
+        }
 
-        return Ok("Expense deleted successfully");
+        /// <summary>
+        /// Deletes the expense with the specified ID.
+        /// </summary>
+        /// <param name="expenseId">The ID of the expense to delete.</param>
+        /// <returns>A response indicating the result of the delete operation.</returns>
+        [HttpDelete("{expenseId}")]
+        public IActionResult DeleteExpense(int expenseId)
+        {
+            int userId = int.Parse(this.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value, CultureInfo.InvariantCulture);
+
+            User? user = this._store.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return this.NotFound("User not found");
+            }
+
+            Expense? expense = this._store.Expenses.FirstOrDefault(e => e.Id == expenseId);
+            if (expense == null)
+            {
+                return this.NotFound("Expense not found");
+            }
+
+            Project? project = this._store.Projects.FirstOrDefault(p => p.Id == expense.ProjectId);
+            if (project == null)
+            {
+                return this.NotFound("Project not found");
+            }
+
+            string userName = user.UserName ?? string.Empty;
+            bool hasRights = project.Collaborators.Contains(userName);
+
+            if (!hasRights)
+            {
+                return this.NotFound("User not a collaborator");
+            }
+
+            _ = this._store.Expenses.Remove(expense);
+
+            this._store.SaveChanges();
+
+            return this.Ok("Expense deleted successfully");
+        }
     }
 }

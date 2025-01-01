@@ -1,55 +1,88 @@
-﻿using AppLidra.Shared.Models;
-using AppLidra.Shared.Services;
-using System.Text.Json;
+﻿//-----------------------------------------------------------------------
+// <copiright file="JsonDataStore.cs">
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
+//-----------------------------------------------------------------------
 
-namespace AppLidra.Server.Data;
-
-public class JsonDataStore
+namespace AppLidra.Server.Data
 {
-    private readonly string _filePath;
-    private readonly object _lock = new();
+    using System.Text.Json;
+    using AppLidra.Shared.Models;
 
-    public List<Project> Projects { get; private set; } = [];
-    public List<User> Users { get; private set; } = [];
-    public List<Expense> Expenses { get; private set; } = [];
-
-    public JsonDataStore(string filePath)
+    /// <summary>
+    /// Represents a data store that handles JSON serialization and deserialization for projects, users, and expenses.
+    /// </summary>
+    public class JsonDataStore
     {
-        _filePath = filePath;
-
-        if (!File.Exists(_filePath))
+        private static readonly JsonSerializerOptions _deserializeOptions = new ()
         {
-            SaveChanges(); // Crée un fichier JSON vide
-        }
+            PropertyNameCaseInsensitive = true,
+        };
 
-        LoadData();
-    }
-
-    private void LoadData()
-    {
-        lock (_lock)
+        private static readonly JsonSerializerOptions _serializeOptions = new ()
         {
-            var json = File.ReadAllText(_filePath);
-            var data = JsonSerializer.Deserialize<JsonData>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            WriteIndented = true,
+        };
 
-            Projects = data?.Projects ?? [];
-            Users = data?.Users ?? [];
-            Expenses = data?.Expenses ?? [];
-        }
-    }
+        private readonly string _filePath;
+        private readonly object _lock = new ();
 
-    public void SaveChanges()
-    {
-        lock (_lock)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonDataStore"/> class.
+        /// </summary>
+        /// <param name="filePath">The file path to the JSON data store.</param>
+        public JsonDataStore(string filePath)
         {
-            var data = new JsonData
+            this._filePath = filePath;
+
+            if (!File.Exists(this._filePath))
             {
-                Projects = Projects,
-                Users = Users,
-                Expenses = Expenses
-            };
+                this.SaveChanges();
+            }
 
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true }));
+            this.LoadData();
+        }
+
+        /// <summary>
+        /// Gets the list of projects.
+        /// </summary>
+        public List<Project> Projects { get; private set; } = [];
+
+        /// <summary>
+        /// Gets the list of users.
+        /// </summary>
+        public List<User> Users { get; private set; } = [];
+
+        /// <summary>
+        /// Gets the list of expenses.
+        /// </summary>
+        public List<Expense> Expenses { get; private set; } = [];
+
+        /// <summary>
+        /// Saves the changes to the JSON data store.
+        /// </summary>
+        public void SaveChanges()
+        {
+            lock (this._lock)
+            {
+                JsonData data = new (this.Projects, this.Users, this.Expenses);
+
+                File.WriteAllText(this._filePath, JsonSerializer.Serialize(data, _serializeOptions));
+            }
+        }
+
+        private void LoadData()
+        {
+            lock (this._lock)
+            {
+                string json = File.ReadAllText(this._filePath);
+                JsonData? data = JsonSerializer.Deserialize<JsonData>(json, _deserializeOptions);
+
+                this.Projects = data?.Projects ?? [];
+                this.Users = data?.Users ?? [];
+                this.Expenses = data?.Expenses ?? [];
+            }
         }
     }
 }

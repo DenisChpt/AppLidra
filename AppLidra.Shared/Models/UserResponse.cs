@@ -1,10 +1,24 @@
-﻿namespace AppLidra.Shared.Models;
+﻿//-----------------------------------------------------------------------
+// <copiright file="UserResponse.cs">
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
+//-----------------------------------------------------------------------
 
-public class UserResponse
+namespace AppLidra.Shared.Models
 {
-    public string UserName { get; set; }
-    public UserResponse (string userName)
+    /// <summary>
+    /// Represents a response from a user.
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="UserResponse"/> class.
+    /// </remarks>
+    /// <param name="userName">The user name.</param>
+    public class UserResponse(string userName)
     {
-        UserName = userName;
+        /// <summary>
+        /// Gets or sets the name of the user.
+        /// </summary>
+        public string UserName { get; set; } = userName;
     }
 }

@@ -84,9 +84,9 @@
     [Parameter]
     public int ProjectId { get; set; }
 
-    private string errorMessage;
-    private Expense expenseToModify;
-    private Project project;
+    private string errorMessage = string.Empty;
+    private Expense? expenseToModify;
+    private Project? project;
     private List<Expense> expenses = new();
 
     private enum TabType

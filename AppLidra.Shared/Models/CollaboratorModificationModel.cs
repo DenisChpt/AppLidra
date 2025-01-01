@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copiright file="BalancePart.cs">
+// <copiright file="CollaboratorModificationModel.cs">
 //      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
 // </copyright>
 // <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
@@ -8,20 +8,18 @@
 namespace AppLidra.Shared.Models
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="BalancePart"/> class.
+    /// Represents a model for modifying a collaborator by name.
     /// </summary>
-    /// <param name="name">The name of the balance part.</param>
-    /// <param name="amount">The amount of the balance part.</param>
-    public class BalancePart(string name, double amount)
+    public class CollaboratorModificationModel(int projectId, string collaboratorName)
     {
         /// <summary>
-        /// Gets or sets the name.
+        /// Gets or sets the project ID.
         /// </summary>
-        public string Name { get; set; } = name;
+        public int ProjectId { get; set; } = projectId;
 
         /// <summary>
-        /// Gets or sets the amount.
+        /// Gets or sets the name of the collaborator.
         /// </summary>
-        public double Amount { get; set; } = amount;
+        public string CollaboratorName { get; set; } = collaboratorName;
     }
 }

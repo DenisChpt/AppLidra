@@ -1,21 +1,36 @@
-﻿using AppLidra.Client.Services;
-namespace AppLidra.Client.Handlers;
-public static class HttpClientAuthorizationExtensions
+﻿//-----------------------------------------------------------------------
+// <copiright file="HttpClientAuthorizationExtensions.cs">
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
+//-----------------------------------------------------------------------
+
+namespace AppLidra.Client.Handlers
 {
-    public static void AddAuthorizationHandler(this IServiceCollection services)
+    /// <summary>
+    /// Provides extension methods for adding authorization handlers to the service collection.
+    /// </summary>
+    public static class HttpClientAuthorizationExtensions
     {
-        services.AddScoped<AuthorizationMessageHandler>();
-        services.AddScoped(sp =>
+        /// <summary>
+        /// Adds the authorization handler to the service collection.
+        /// </summary>
+        /// <param name="services">The service collection to add the handler to.</param>
+        public static void AddAuthorizationHandler(this IServiceCollection services)
         {
-            var handler = sp.GetRequiredService<AuthorizationMessageHandler>();
-            handler.InnerHandler = new HttpClientHandler();
-
-            var client = new HttpClient(handler)
+            services.AddScoped<AuthorizationMessageHandler>();
+            services.AddScoped(sp =>
             {
-                BaseAddress = new Uri("https://localhost:44354/")
-            };
+                var handler = sp.GetRequiredService<AuthorizationMessageHandler>();
+                handler.InnerHandler = new HttpClientHandler();
 
-            return client;
-        });
+                var client = new HttpClient(handler)
+                {
+                    BaseAddress = new Uri("https://localhost:44354/"),
+                };
+
+                return client;
+            });
+        }
     }
 }

@@ -47,14 +47,14 @@ else
 }
 
 @code {
-    [Parameter] public Project Project { get; set; }
+    [Parameter] public required Project Project { get; set; }
     [Parameter] public EventCallback<Project> OnProjectUpdated { get; set; }
     [Parameter] public EventCallback OnProjectDeleted { get; set; }
 
-    private string newCollaboratorUserName;
-    private string errorMessage;
+    private string newCollaboratorUserName = string.Empty;
+    private string errorMessage = string.Empty;
     private bool isOwner;
-    private string newName;
+    private string newName = string.Empty;
 
     protected override async Task OnParametersSetAsync()
     {

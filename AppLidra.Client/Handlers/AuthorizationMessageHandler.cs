@@ -1,27 +1,48 @@
-﻿using Blazored.LocalStorage;
-using System.Net.Http.Headers;
+﻿//-----------------------------------------------------------------------
+// <copiright file="AuthorizationMessageHandler.cs">
+//      Copyright (c) 2024 Damache Kamil, Ziani Racim, Chaput Denis. All rights reserved.
+// </copyright>
+// <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
+//-----------------------------------------------------------------------
 
-namespace AppLidra.Client.Services;
-public class AuthorizationMessageHandler : DelegatingHandler
+namespace AppLidra.Client.Handlers
 {
-    private readonly ILocalStorageService _localStorage;
+    using System.Net;
+    using System.Net.Http.Headers;
+    using Blazored.LocalStorage;
 
-    public AuthorizationMessageHandler(ILocalStorageService localStorage)
+    /// <summary>
+    /// A message handler that adds an authorization header to HTTP requests if a token is available.
+    /// </summary>
+    /// <param name="localStorage">The local storage service to retrieve the token from.</param>
+    public class AuthorizationMessageHandler(ILocalStorageService localStorage) : DelegatingHandler()
     {
-        _localStorage = localStorage;
-    }
+        private readonly ILocalStorageService _localStorage = localStorage;
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        var token = await _localStorage.GetItemAsync<string>("authToken");
-
-        if (!string.IsNullOrEmpty(token))
+        /// <summary>
+        /// Sends an HTTP request with an authorization header if a token is available.
+        /// </summary>
+        /// <param name="request">The HTTP request message to send.</param>
+        /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+        /// <returns>The HTTP response message.</returns>
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            // Dans AuthorizationMessageHandler
-            Console.WriteLine($"Token being used: {token?.Substring(0, 20)}...");
-        }
+            string? token = await this._localStorage.GetItemAsync<string>("authToken", cancellationToken).ConfigureAwait(false);
 
-        return await base.SendAsync(request, cancellationToken);
+            if (!string.IsNullOrEmpty(token))
+            {
+                if (request is null || request.Headers is null)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                }
+
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                // In AuthorizationMessageHandler
+                Console.WriteLine($"Token being used: {token[..20]}...");
+            }
+
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        }
     }
 }

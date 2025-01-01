@@ -1,29 +1,9 @@
 {
   "Projects": [
     {
-      "Id": 1,
-      "Name": "Projet Kamil",
-      "CreatedAt": "2024-11-23T09:58:33.9888417Z",
-      "OwnerUserId": 1,
-      "Collaborators": [
-        "Kamil",
-        "Denis"
-      ]
     }
   ],
   "Users": [
-    {
-      "Id": 1,
-      "UserName": "Kamil",
-      "Email": "kamil@gmail.com",
-      "Password": "passworddcaca"
-    },
-    {
-      "Id": 2,
-      "UserName": "Denis",
-      "Email": "denis@gmail.com",
-      "Password": "passwordcaca"
-    }
   ],
   "Expenses": []
 }

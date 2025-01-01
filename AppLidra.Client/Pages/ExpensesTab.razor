@@ -45,14 +45,14 @@ else
 
 @code {
     [Parameter] public int ProjectId { get; set; }
-    [Parameter] public List<Expense> Expenses { get; set; }
+    [Parameter] public required List<Expense> Expenses { get; set; }
     [Parameter] public EventCallback OnAddExpense { get; set; }
     [Parameter] public EventCallback OnExpensesUpdated { get; set; }
     [Parameter] public EventCallback<int> OnModifyExpense { get; set; }
 
-    private string errorMessage;
+    private string errorMessage = string.Empty;
     private bool isProjectOwner;
-    private string userName;
+    private string userName = string.Empty;
 
     protected override async Task OnParametersSetAsync()
     {
