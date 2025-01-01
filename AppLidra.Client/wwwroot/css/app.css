@@ -81,13 +81,13 @@ body {
     font-family: 'Roboto', 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f8fbfd; /* Douce couleur de fond */
+    background-color: #f8fbfd;
     color: #333;
     line-height: 1.6;
     display: flex;
-    flex-direction: column; /* Alignement des enfants en colonne */
-    justify-content: flex-start; /* Alignement en haut de la page */
-    align-items: center; /* Centrage horizontal uniquement */
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     min-height: 100vh;
 }
 
@@ -126,7 +126,7 @@ button.dark-mode {
 
 /* Header and Navigation */
 header {
-    background-color: #2a9d8f; /* Vert menthe */
+    background-color: #2a9d8f; 
     color: white;
     padding: 1rem;
     text-align: center;
@@ -135,7 +135,7 @@ header {
 }
 
     header.dark-mode {
-        background-color: #1c1c1c; /* Couleur sombre pour l'en-tête */
+        background-color: #1c1c1c;
     }
 
 /* Footer */
