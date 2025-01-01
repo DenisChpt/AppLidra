@@ -30,6 +30,9 @@ dotnet_diagnostic.CA2227.severity = none
 # Disable the rule that requires blank lines between elements (SA1516)
 dotnet_diagnostic.SA1516.severity = none
 
+# Disable the rule that requires a space after the keyword "new" (SA1000) because it bugs
+dotnet_diagnostic.SA1000.severity = none
+
 # .NET coding conventions
 
 # Suggest using 'this.' when referring to fields (qualification for field)
