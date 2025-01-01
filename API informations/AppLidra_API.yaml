@@ -1,0 +1,534 @@
+ openapi: 3.0.1
+info:
+  title: AppLidra.Server
+  version: '1.0'
+paths:
+  /api/Auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Logs in a user with the provided credentials.
+      requestBody:
+        description: The login model containing user credentials.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LoginModel'
+      responses:
+        '200':
+          description: Success
+  /api/Auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registers a new user with the provided user details.
+      requestBody:
+        description: The user model containing user details.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Success
+  /api/Auth/all-users:
+    get:
+      tags:
+        - Auth
+      summary: Retrieves all users.
+      responses:
+        '200':
+          description: Success
+  '/api/Expense/{expenseId}':
+    get:
+      tags:
+        - Expense
+      summary: Retrieves the expense with the specified ID.
+      parameters:
+        - name: expenseId
+          in: path
+          description: The ID of the expense to retrieve.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+    put:
+      tags:
+        - Expense
+      summary: Updates an existing expense.
+      parameters:
+        - name: expenseId
+          in: path
+          description: The ID of the expense to update.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: The updated expense details.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Expense'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/Expense'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/Expense'
+      responses:
+        '200':
+          description: Success
+    delete:
+      tags:
+        - Expense
+      summary: Deletes the expense with the specified ID.
+      parameters:
+        - name: expenseId
+          in: path
+          description: The ID of the expense to delete.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  /api/Expense:
+    post:
+      tags:
+        - Expense
+      summary: Adds a new expense.
+      requestBody:
+        description: The model of the expense to add.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ExpenseModel'
+      responses:
+        '200':
+          description: Success
+  /api/Project:
+    get:
+      tags:
+        - Project
+      summary: Gets all projects for the current user.
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Project
+      summary: Creates a new project.
+      requestBody:
+        description: The project to create.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: Success
+  '/api/Project/is-owner/{projectId}':
+    get:
+      tags:
+        - Project
+      summary: Checks if the current user is the owner of the specified project.
+      parameters:
+        - name: projectId
+          in: path
+          description: The ID of the project to check ownership for.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  '/api/Project/{projectId}':
+    get:
+      tags:
+        - Project
+      summary: Gets a project by its ID.
+      parameters:
+        - name: projectId
+          in: path
+          description: The ID of the project to retrieve.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+    delete:
+      tags:
+        - Project
+      summary: Deletes a project by its ID.
+      parameters:
+        - name: projectId
+          in: path
+          description: The ID of the project to delete.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  /api/Project/add-collaborator:
+    post:
+      tags:
+        - Project
+      summary: Adds a collaborator to a project.
+      requestBody:
+        description: >-
+          The collaborator modification model containing project ID and
+          collaborator name.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+      responses:
+        '200':
+          description: Success
+  /api/Project/remove-collaborator:
+    post:
+      tags:
+        - Project
+      summary: Removes a collaborator from a project.
+      requestBody:
+        description: >-
+          The collaborator modification model containing project ID and
+          collaborator name.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+      responses:
+        '200':
+          description: Success
+  /api/Project/quit-project:
+    post:
+      tags:
+        - Project
+      summary: Allows a collaborator to quit a project.
+      requestBody:
+        description: >-
+          The collaborator modification model containing project ID and
+          collaborator name.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorModificationModel'
+      responses:
+        '200':
+          description: Success
+  /api/Project/rename:
+    post:
+      tags:
+        - Project
+      summary: Renames a project.
+      requestBody:
+        description: The new project information.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRenameModel'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRenameModel'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ProjectRenameModel'
+      responses:
+        '200':
+          description: Success
+  '/api/Project/expenses/{projectId}':
+    get:
+      tags:
+        - Project
+      summary: Gets the list of expenses for a specific project.
+      parameters:
+        - name: projectId
+          in: path
+          description: The ID of the project.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  '/api/Project/collaborators/{projectId}':
+    get:
+      tags:
+        - Project
+      summary: Gets the list of collaborators for a specific project.
+      parameters:
+        - name: projectId
+          in: path
+          description: The ID of the project.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  '/api/Project/distribution/{projectId}':
+    get:
+      tags:
+        - Project
+      summary: Gets the distribution of expenses for a specific project.
+      parameters:
+        - name: projectId
+          in: path
+          description: The ID of the project.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  '/api/Project/balance/{projectId}':
+    get:
+      tags:
+        - Project
+      summary: Gets the balance for a specific project.
+      parameters:
+        - name: projectId
+          in: path
+          description: The ID of the project.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  /api/User/id:
+    get:
+      tags:
+        - User
+      summary: Gets the user ID of the current user.
+      responses:
+        '200':
+          description: Success
+  /api/User/userName:
+    get:
+      tags:
+        - User
+      summary: Gets the user name of the current user.
+      responses:
+        '200':
+          description: Success
+  '/api/User/userName/{id}':
+    get:
+      tags:
+        - User
+      summary: Gets the user name by user ID.
+      parameters:
+        - name: id
+          in: path
+          description: The user ID.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+  '/api/User/id/{userName}':
+    get:
+      tags:
+        - User
+      summary: Gets the user ID by user name.
+      parameters:
+        - name: userName
+          in: path
+          description: The user name.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+components:
+  schemas:
+    CollaboratorModificationModel:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          format: int32
+        collaboratorName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Expense:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        author:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: double
+        date:
+          type: string
+          format: date-time
+        projectId:
+          type: integer
+          format: int32
+        shares:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseShare'
+          nullable: true
+      additionalProperties: false
+    ExpenseModel:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: double
+        date:
+          type: string
+          format: date-time
+        projectId:
+          type: integer
+          format: int32
+        shares:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseShare'
+          nullable: true
+      additionalProperties: false
+    ExpenseShare:
+      type: object
+      properties:
+        userName:
+          type: string
+          nullable: true
+        share:
+          type: number
+          format: double
+      additionalProperties: false
+    LoginModel:
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        ownerUserId:
+          type: integer
+          format: int32
+        collaborators:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ProjectRenameModel:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          format: int32
+        newName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    User:
+      required:
+        - email
+        - password
+        - userName
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        userName:
+          minLength: 4
+          type: string
+        email:
+          minLength: 1
+          type: string
+          format: email
+        password:
+          minLength: 6
+          type: string
+      additionalProperties: false
