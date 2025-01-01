@@ -274,3 +274,9 @@ table {
     .card-content.dark-mode {
         color: #e0e0e0;
     }
+
+div img {
+    display: block;
+    margin: 0 auto;
+    transition: opacity 0.3s ease-in-out;
+}
