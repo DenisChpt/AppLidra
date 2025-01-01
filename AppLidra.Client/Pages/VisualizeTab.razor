@@ -3,29 +3,29 @@
 
 <div class="space-y-4">
     <h3 class="text-lg font-bold">Expense Visualization</h3>
-    
+
     <div class="flex space-x-4">
-        <button 
-            class="p-2 border rounded @(ActiveSubTab == SubTabType.Distribution ? "bg-blue-500 text-white" : "hover:bg-gray-200")" 
-            @onclick="() => ActiveSubTab = SubTabType.Distribution">
+        <button class="p-2 border rounded @(ActiveSubTab == SubTabType.Distribution ? "bg-blue-500 text-white" : "hover:bg-gray-200")"
+                @onclick="() => ActiveSubTab = SubTabType.Distribution">
             Distribution
         </button>
-        <button 
-            class="p-2 border rounded @(ActiveSubTab == SubTabType.Recap ? "bg-blue-500 text-white" : "hover:bg-gray-200")" 
-            @onclick="() => ActiveSubTab = SubTabType.Recap">
+        <button class="p-2 border rounded @(ActiveSubTab == SubTabType.Recap ? "bg-blue-500 text-white" : "hover:bg-gray-200")"
+                @onclick="() => ActiveSubTab = SubTabType.Recap">
             Recap
         </button>
     </div>
 
-    @switch (ActiveSubTab)
-    {
-        case SubTabType.Distribution:
-            <DistributionTab ProjectId="ProjectId" />
-            break;
-        case SubTabType.Recap:
-            <RecapTab ProjectId="ProjectId" />
-            break;
-    }
+    <div class="graph-wrapper">
+        @switch (ActiveSubTab)
+        {
+            case SubTabType.Distribution:
+                <DistributionTab ProjectId="ProjectId" />
+                break;
+            case SubTabType.Recap:
+                <RecapTab ProjectId="ProjectId" />
+                break;
+        }
+    </div>
 </div>
 
 @code {

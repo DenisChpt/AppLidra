@@ -43,3 +43,7 @@ function createBarChart(canvasId, labels, data) {
         }
     });
 }
+
+function toggleBodyClass(className) {
+    document.body.className = className;
+}

@@ -1,15 +1,21 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components
+@inject IJSRuntime JSRuntime
 
 <h1>Welcome to AppLidra</h1>
 
 <div>
     <button @onclick="NavigateToLogin">Login</button>
     <button @onclick="NavigateToSignin">Sign Up</button>
+    <button @onclick="ToggleDarkMode">@DarkModeButtonText</button>
 </div>
 
 @code {
     [Inject] private NavigationManager Navigation { get; set; } = null!;
+    [Inject] private IJSRuntime JSRuntimeInstance { get; set; } = null!;
+
+    private bool IsDarkMode { get; set; } = false;
+    private string DarkModeButtonText => IsDarkMode ? "Toggle Bright mode" : "Toggle Dark mode";
 
     private void NavigateToLogin()
     {
@@ -19,5 +25,12 @@
     private void NavigateToSignin()
     {
         Navigation.NavigateTo("/signin");
+    }
+
+    private void ToggleDarkMode()
+    {
+        IsDarkMode = !IsDarkMode;
+        var bodyClass = IsDarkMode ? "dark-mode" : "";
+        JSRuntime.InvokeVoidAsync("toggleBodyClass", bodyClass);
     }
 }
