@@ -45,7 +45,7 @@ else
 
 @code {
     [Parameter] public int ProjectId { get; set; }
-    [Parameter] public required List<Expense> Expenses { get; set; }
+    [Parameter] public required List<Expense> Expenses { get; set; } = [];
     [Parameter] public EventCallback OnAddExpense { get; set; }
     [Parameter] public EventCallback OnExpensesUpdated { get; set; }
     [Parameter] public EventCallback<int> OnModifyExpense { get; set; }
@@ -58,6 +58,8 @@ else
     {
         if (ProjectId != 0)
         {
+            Expenses = await Http.GetFromJsonAsync<List<Expense>>($"api/Project/expenses/{ProjectId}") ?? [];
+        
             isProjectOwner = await Http.GetFromJsonAsync<bool>($"https://localhost:44354/api/Project/is-owner/{ProjectId}");
             UserResponse? tmpUsrResponse = await Http.GetFromJsonAsync<UserResponse>($"https://localhost:44354/api/User/userName");
             if (tmpUsrResponse is not null)
