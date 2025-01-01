@@ -45,7 +45,6 @@ secrets.json
 *.mdb
 
 # ASP .NET Core Server
-wwwroot/
 node_modules/
 yarn.lock
 npm-debug.log
@@ -53,7 +52,6 @@ package-lock.json
 
 # Blazor WASM CLient
 dist/
-wwwroot/
 *.tsbuildinfo
 *.gz
 *.br
