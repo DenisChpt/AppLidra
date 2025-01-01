@@ -1,28 +1,45 @@
-﻿window.drawPieChart = function (data) {
-    const ctx = document.getElementById("pieChart").getContext("2d");
+﻿function createPieChart(canvasId, labels, data) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
     new Chart(ctx, {
-        type: "pie",
+        type: 'pie',
         data: {
-            labels: data.labels,
+            labels: labels,
             datasets: [{
-                data: data.values,
-                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                data: data,
+                backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40']
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            }
         }
     });
-};
+}
 
-window.drawTimeGraph = function (data) {
-    const ctx = document.getElementById("timeGraph").getContext("2d");
+function createBarChart(canvasId, labels, data) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
     new Chart(ctx, {
-        type: "line",
+        type: 'bar',
         data: {
-            labels: data.dates,
+            labels: labels,
             datasets: [{
-                data: data.amounts,
-                borderColor: "#36A2EB",
-                fill: false,
+                label: 'Balance',
+                data: data,
+                backgroundColor: '#4bc0c0',
             }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
         }
     });
-};
+}
