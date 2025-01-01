@@ -71,7 +71,7 @@ else
     {
         if (ProjectId != 0)
         {
-            collaborators = await Http.GetFromJsonAsync<List<string>>($"https://localhost:44354/api/Project/collaborators/{ProjectId}")??[];
+            collaborators = await Http.GetFromJsonAsync<List<string>>($"api/Project/collaborators/{ProjectId}")??[];
         }
     }
 
@@ -90,7 +90,7 @@ else
         try
         {
             ExpenseModel expense = new(expenseName, expenseAmount, expenseDate, ProjectId, expenseShares);
-            var response = await Http.PostAsJsonAsync("https://localhost:44354/api/Expense", expense);
+            var response = await Http.PostAsJsonAsync("api/Expense", expense);
 
             if (response.IsSuccessStatusCode)
             {

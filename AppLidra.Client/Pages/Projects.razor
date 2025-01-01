@@ -60,7 +60,7 @@ else
         try
         {
 
-            currentUserId = await Http.GetFromJsonAsync<int>("https://localhost:44354/api/User/id");
+            currentUserId = await Http.GetFromJsonAsync<int>("api/User/id");
         }
         catch
         {
@@ -73,7 +73,7 @@ else
     {
         try
         {
-            projects = await Http.GetFromJsonAsync<List<Project>>("https://localhost:44354/api/Project") ?? new List<Project>();
+            projects = await Http.GetFromJsonAsync<List<Project>>("api/Project") ?? new List<Project>();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -97,7 +97,7 @@ else
 
         var token = await LocalStorage.GetItemAsync<string>("authToken");
 
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44354/api/Project")
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "api/Project")
             {
                 Content = new StringContent(JsonSerializer.Serialize(newProject), Encoding.UTF8, "application/json"),
                 Headers = { Authorization = new AuthenticationHeaderValue("Bearer", token) }

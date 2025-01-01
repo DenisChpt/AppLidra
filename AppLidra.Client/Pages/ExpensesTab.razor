@@ -60,8 +60,8 @@ else
         {
             Expenses = await Http.GetFromJsonAsync<List<Expense>>($"api/Project/expenses/{ProjectId}") ?? [];
         
-            isProjectOwner = await Http.GetFromJsonAsync<bool>($"https://localhost:44354/api/Project/is-owner/{ProjectId}");
-            UserResponse? tmpUsrResponse = await Http.GetFromJsonAsync<UserResponse>($"https://localhost:44354/api/User/userName");
+            isProjectOwner = await Http.GetFromJsonAsync<bool>($"api/Project/is-owner/{ProjectId}");
+            UserResponse? tmpUsrResponse = await Http.GetFromJsonAsync<UserResponse>($"api/User/userName");
             if (tmpUsrResponse is not null)
                 userName = tmpUsrResponse.UserName;
             else
@@ -76,7 +76,7 @@ else
 
     private async Task DeleteExpense(int ExpenseId)
     {
-        var response = await Http.DeleteAsync($"https://localhost:44354/api/Expense/{ExpenseId}");
+        var response = await Http.DeleteAsync($"api/Expense/{ExpenseId}");
         if(!response.IsSuccessStatusCode)
             errorMessage = await response.Content.ReadAsStringAsync();
         else

@@ -60,7 +60,7 @@ else
     {
         if (Project is not null)
         {
-            isOwner = await Http.GetFromJsonAsync<bool>($"https://localhost:44354/api/Project/is-owner/{Project.Id}");
+            isOwner = await Http.GetFromJsonAsync<bool>($"api/Project/is-owner/{Project.Id}");
         }
     }
 
@@ -68,7 +68,7 @@ else
     {
         try
         {
-            var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/rename", new ProjectRenameModel(Project.Id, newName));
+            var response = await Http.PostAsJsonAsync($"api/Project/rename", new ProjectRenameModel(Project.Id, newName));
 
             if (response.IsSuccessStatusCode)
                 ProjectUpdate();
@@ -85,7 +85,7 @@ else
     {
         try
         {
-            var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/add-collaborator", new CollaboratorModificationModel(Project.Id, newCollaboratorUserName));
+            var response = await Http.PostAsJsonAsync($"api/Project/add-collaborator", new CollaboratorModificationModel(Project.Id, newCollaboratorUserName));
 
             if(response.IsSuccessStatusCode)
                 ProjectUpdate();
@@ -102,7 +102,7 @@ else
     {
         try
         {
-            var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/remove-collaborator", new CollaboratorModificationModel(Project.Id, collaborator));
+            var response = await Http.PostAsJsonAsync($"api/Project/remove-collaborator", new CollaboratorModificationModel(Project.Id, collaborator));
 
             if (response.IsSuccessStatusCode)
                 ProjectUpdate();
@@ -119,11 +119,11 @@ else
     {
         try
         {
-            UserResponse? userName = await Http.GetFromJsonAsync<UserResponse>($"https://localhost:44354/api/User/userName");
+            UserResponse? userName = await Http.GetFromJsonAsync<UserResponse>($"api/User/userName");
 
             if (userName is not null)
             {
-                var response = await Http.PostAsJsonAsync($"https://localhost:44354/api/Project/quit-project", new CollaboratorModificationModel(Project.Id, userName.UserName));
+                var response = await Http.PostAsJsonAsync($"api/Project/quit-project", new CollaboratorModificationModel(Project.Id, userName.UserName));
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -144,7 +144,7 @@ else
 
     private async void ProjectUpdate()
     {
-        Project? tmpProj = await Http.GetFromJsonAsync<Project>($"https://localhost:44354/api/Project/{Project.Id}");
+        Project? tmpProj = await Http.GetFromJsonAsync<Project>($"api/Project/{Project.Id}");
         if (tmpProj is not null)
         {
             Project = tmpProj;
@@ -156,7 +156,7 @@ else
 
     private async Task DeleteProject()
     {
-        await Http.DeleteAsync($"https://localhost:44354/api/Project/{Project.Id}");
+        await Http.DeleteAsync($"api/Project/{Project.Id}");
         await OnProjectDeleted.InvokeAsync();
     }
 }

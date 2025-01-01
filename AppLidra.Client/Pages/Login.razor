@@ -38,7 +38,7 @@
     {
         try
         {
-            var response = await Http.PostAsJsonAsync("https://localhost:44354/api/Auth/login", logs);
+            var response = await Http.PostAsJsonAsync("api/Auth/login", logs);
             if (response.IsSuccessStatusCode)
             {
                 // Claims the token of the response

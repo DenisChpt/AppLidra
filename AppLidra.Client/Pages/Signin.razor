@@ -40,7 +40,7 @@
     {
         try
         {
-            var response = await Http.PostAsJsonAsync("https://localhost:44354/api/Auth/register", user);
+            var response = await Http.PostAsJsonAsync("api/Auth/register", user);
             if (response.IsSuccessStatusCode)
             {
                 Navigation.NavigateTo("/login");

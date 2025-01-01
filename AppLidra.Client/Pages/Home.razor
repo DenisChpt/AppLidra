@@ -5,6 +5,11 @@
 <h1>Welcome to AppLidra</h1>
 
 <div>
+    <!-- Logos pour les modes clair et sombre -->
+    <img src="@CurrentLogo" alt="AppLidra Logo" width="150" height="150" />
+</div>
+
+<div>
     <button @onclick="NavigateToLogin">Login</button>
     <button @onclick="NavigateToSignin">Sign Up</button>
     <button @onclick="ToggleDarkMode">@DarkModeButtonText</button>
@@ -16,6 +21,10 @@
 
     private bool IsDarkMode { get; set; } = false;
     private string DarkModeButtonText => IsDarkMode ? "Toggle Bright mode" : "Toggle Dark mode";
+
+    private string BrightLogo => "logo-bright.png";
+    private string DarkLogo => "logo-dark.png";
+    private string CurrentLogo => IsDarkMode ? DarkLogo : BrightLogo;
 
     private void NavigateToLogin()
     {

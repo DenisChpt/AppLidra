@@ -108,7 +108,7 @@
 
     private async Task LoadProjectDetails()
     {
-        Project? tmpProj = await Http.GetFromJsonAsync<Project>($"https://localhost:44354/api/Project/{ProjectId}");
+        Project? tmpProj = await Http.GetFromJsonAsync<Project>($"api/Project/{ProjectId}");
         if (tmpProj is not null)
             project = tmpProj;
         else
@@ -141,7 +141,7 @@
     } 
     private async Task GoToModifyExpense(int expenseId)
     {
-        Expense? tmpExp = await Http.GetFromJsonAsync<Expense>($"https://localhost:44354/api/Expense/{expenseId}");
+        Expense? tmpExp = await Http.GetFromJsonAsync<Expense>($"api/Expense/{expenseId}");
         if (tmpExp is not null)
         {
             expenseToModify = tmpExp;
