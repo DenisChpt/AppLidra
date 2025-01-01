@@ -5,6 +5,7 @@
 // <author> Damache Kamil, Ziani Racim, Chaput Denis </author>
 //-----------------------------------------------------------------------
 
+using System.Reflection;
 using System.Text;
 using AppLidra.Server.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,7 +18,13 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Inclure les commentaires XML dans Swagger
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 // DataBase
 string dataFolder = Path.Combine(Directory.GetCurrentDirectory(), "Data");
@@ -35,8 +42,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         var jwtSettings = builder.Configuration.GetSection("Jwt");
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,  // Modifi� � false pour le test
-            ValidateAudience = false, // Modifi� � false pour le test
+            ValidateIssuer = false,  // Modifié à false pour le test
+            ValidateAudience = false, // Modifié à false pour le test
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!)),

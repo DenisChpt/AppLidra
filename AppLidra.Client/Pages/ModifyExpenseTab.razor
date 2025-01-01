@@ -13,7 +13,7 @@ else
         <label>Name:</label>
         <input @bind="expenseName" type="text" />
     </div>
-    @if(isOwner)
+    @if (isOwner)
     {
         <div>
             <label>Author:</label>
@@ -43,7 +43,7 @@ else
                 <label>Collaborator:</label>
                 <select @bind="share.UserName">
                     <option value="">-- Select Collaborator --</option>
-                    @foreach (var collaborator in collaborators)
+                    @foreach (var collaborator in GetAvailableCollaborators(share))
                     {
                         <option value="@collaborator">@collaborator</option>
                     }
@@ -72,8 +72,8 @@ else
     [Parameter] public EventCallback GoToExpenses { get; set; }
     [Parameter] public EventCallback OnExpenseModified { get; set; }
 
-    private string expenseName = String.Empty;
-    private string expenseAuthor = String.Empty;
+    private string expenseName = string.Empty;
+    private string expenseAuthor = string.Empty;
     private double expenseAmount;
     private DateTime expenseDate;
     private List<ExpenseShare> expenseShares = new List<ExpenseShare>();
@@ -87,10 +87,10 @@ else
     {
         if (ProjectId != 0)
         {
-            collaborators = await Http.GetFromJsonAsync<List<string>>($"https://localhost:44354/api/Project/collaborators/{ProjectId}")??[];
+            collaborators = await Http.GetFromJsonAsync<List<string>>($"https://localhost:44354/api/Project/collaborators/{ProjectId}") ?? [];
             isOwner = await Http.GetFromJsonAsync<bool>($"https://localhost:44354/api/Project/is-owner/{ProjectId}");
 
-            if(!isInitialized)
+            if (!isInitialized)
             {
                 expenseName = Expense.Name;
                 expenseAuthor = Expense.Author;
@@ -110,6 +110,16 @@ else
     private void RemoveShare(ExpenseShare share)
     {
         expenseShares.Remove(share);
+    }
+
+    private List<string> GetAvailableCollaborators(ExpenseShare currentShare)
+    {
+        var selectedCollaborators = expenseShares
+            .Where(share => share != currentShare && !string.IsNullOrEmpty(share.UserName))
+            .Select(share => share.UserName)
+            .ToList();
+
+        return collaborators.Where(c => !selectedCollaborators.Contains(c)).ToList();
     }
 
     private async Task SaveExpense()
@@ -140,5 +150,3 @@ else
         await GoToExpenses.InvokeAsync();
     }
 }
-
-

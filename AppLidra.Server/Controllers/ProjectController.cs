@@ -198,9 +198,9 @@ namespace AppLidra.Server.Controllers
             bool isShareHolder;
 
             // share out expense on remaining collaborators
-            _ = this._store.Expenses.RemoveAll(e => e.Id == collabInfo.ProjectId);
+            List<Expense> expenses = this._store.Expenses.Where(e => e.ProjectId == collabInfo.ProjectId).ToList();
+            _ = this._store.Expenses.RemoveAll(e => e.ProjectId == collabInfo.ProjectId);
 
-            List<Expense> expenses = this._store.Expenses.Where(e => e.Id == collabInfo.ProjectId).ToList();
             double shareStock = 0;
 
             for (int i = 0; i < expenses.Count; i++)
