@@ -26,7 +26,7 @@ namespace AppLidra.Client.Handlers
 
                 var client = new HttpClient(handler)
                 {
-                    BaseAddress = new Uri("https://localhost:44354/"),
+                    BaseAddress = new Uri("http://localhost:5132/"),
                 };
 
                 return client;
